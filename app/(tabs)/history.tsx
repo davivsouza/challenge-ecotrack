@@ -1,8 +1,8 @@
 import { mockProducts } from '@/data/mockProducts';
 import { Product, ScanHistory } from '@/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -24,6 +24,13 @@ export default function HistoryScreen() {
   useEffect(() => {
     loadHistory();
   }, []);
+
+  // recarrega o histórico sempre que a tela receber foco
+  useFocusEffect(
+    useCallback(() => {
+      loadHistory();
+    }, [])
+  );
 
   const loadHistory = async () => {
     try {
