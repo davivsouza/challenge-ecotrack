@@ -74,28 +74,6 @@ O **EcoTrack** é uma plataforma mobile que empodera consumidores a fazer escolh
 4. **Histórico**: Acesse produtos escaneados anteriormente
 5. **Explorar**: Navegue por produtos disponíveis na base de dados
 
-## 📁 Estrutura do Projeto
-
-```
-challenge-ecotrack/
-├── app/                    # Telas do aplicativo (Expo Router)
-│   ├── (tabs)/            # Navegação por abas
-│   │   ├── index.tsx      # Tela de escaneamento
-│   │   ├── history.tsx    # Tela de histórico
-│   │   └── explore.tsx    # Tela de exploração
-│   ├── login.tsx          # Tela de login
-│   ├── product/           # Detalhes do produto
-│   │   └── [id].tsx       # Tela dinâmica de produto
-│   └── _layout.tsx        # Layout principal
-├── components/            # Componentes reutilizáveis
-├── data/                  # Dados mockados
-│   └── mockProducts.ts    # Produtos de exemplo
-├── types/                 # Definições de tipos TypeScript
-│   └── index.ts           # Interfaces e tipos
-├── assets/                # Recursos estáticos
-└── constants/             # Constantes do aplicativo
-```
-
 ## 🎨 Design e UX
 
 - **Interface Limpa**: Design moderno e intuitivo
@@ -144,40 +122,5 @@ pnpm lint
 # Resetar projeto (cuidado!)
 pnpm reset-project
 ```
-
-## 📱 Compatibilidade
-
-- **Android**: 6.0+ (API level 23+)
-- **iOS**: 11.0+
-- **Web**: Navegadores modernos
-
-## 🚧 Funcionalidades Futuras
-
-- [ ] Integração com API real de produtos
-- [ ] Escaneamento real de códigos de barras
-- [ ] Sistema de usuários e perfis
-- [ ] Relatórios de consumo personalizados
-- [ ] Gamificação e conquistas
-- [ ] Compartilhamento social
-- [ ] Notificações push
-- [ ] Modo offline
-
-## 🤝 Contribuição
-
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
-
-## 👥 Equipe
-
-Desenvolvido como parte do desafio de desenvolvimento mobile com foco em sustentabilidade e consumo consciente.
-
----
 
 **EcoTrack** - Fazendo escolhas sustentáveis mais fáceis! 🌍✨
