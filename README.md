@@ -106,21 +106,7 @@ Cada produto contém:
 ```bash
 # Iniciar servidor de desenvolvimento
 pnpm start
-
-# Executar no Android
-pnpm android
-
-# Executar no iOS
-pnpm ios
-
-# Executar na web
-pnpm web
-
-# Verificar linting
-pnpm lint
-
-# Resetar projeto (cuidado!)
-pnpm reset-project
 ```
+
 
 **EcoTrack** - Fazendo escolhas sustentáveis mais fáceis! 🌍✨
