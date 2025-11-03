@@ -1,4 +1,4 @@
-import { getProductByBarcode } from '@/data/mockProducts';
+import { productService } from '@/services/productService';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -16,26 +16,25 @@ export default function ScanScreen() {
   const [barcode, setBarcode] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleScan = () => {
-    // simula escaneamento com código de barras mockado
-    const mockBarcodes = ['7891234567890', '7891234567891', '7891234567892', '7891234567893', '7891234567894', '7891234567895'];
-    const randomBarcode = mockBarcodes[Math.floor(Math.random() * mockBarcodes.length)];
+  const handleScan = async () => {
+    if (!barcode.trim()) {
+      Alert.alert('Erro', 'Digite um código de barras primeiro');
+      return;
+    }
     
     setLoading(true);
-    setBarcode(randomBarcode);
     
-    setTimeout(() => {
-      const product = getProductByBarcode(randomBarcode);
-      if (product) {
-        router.push(`/product/${product.id}`);
-      } else {
-        Alert.alert('Produto não encontrado', 'Este produto não está em nossa base de dados');
-      }
+    try {
+      const product = await productService.getProductByBarcode(barcode);
+      router.push(`/product/${product.id}`);
+    } catch (error) {
+      Alert.alert('Produto não encontrado', error instanceof Error ? error.message : 'Este produto não está em nossa base de dados');
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
-  const handleManualBarcode = () => {
+  const handleManualBarcode = async () => {
     if (!barcode.trim()) {
       Alert.alert('Erro', 'Digite um código de barras');
       return;
@@ -43,15 +42,14 @@ export default function ScanScreen() {
 
     setLoading(true);
     
-    setTimeout(() => {
-      const product = getProductByBarcode(barcode);
-      if (product) {
-        router.push(`/product/${product.id}`);
-      } else {
-        Alert.alert('Produto não encontrado', 'Este produto não está em nossa base de dados');
-      }
+    try {
+      const product = await productService.getProductByBarcode(barcode);
+      router.push(`/product/${product.id}`);
+    } catch (error) {
+      Alert.alert('Produto não encontrado', error instanceof Error ? error.message : 'Este produto não está em nossa base de dados');
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -81,7 +79,7 @@ export default function ScanScreen() {
 
         <TouchableOpacity
           style={[styles.scanButton, loading && styles.scanButtonDisabled]}
-          onPress={handleScan}
+          onPress={() => handleScan()}
           disabled={loading}
         >
           <Text style={styles.scanButtonText}>
@@ -119,7 +117,7 @@ export default function ScanScreen() {
 
       <View style={styles.tips}>
         <Text style={styles.tipsTitle}>Dicas:</Text>
-        <Text style={styles.tipText}>• Códigos de teste: 7891234567890 a 7891234567895</Text>
+        <Text style={styles.tipText}>• Digite ou escaneie um código de barras válido</Text>
         <Text style={styles.tipText}>• Posicione o código de barras dentro do quadro</Text>
         <Text style={styles.tipText}>• Mantenha o dispositivo estável</Text>
       </View>

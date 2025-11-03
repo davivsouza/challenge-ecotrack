@@ -14,18 +14,29 @@ export const authService = {
   // faz login buscando usuário por email
   async login(credentials: LoginRequest): Promise<User> {
     try {
-      // busca usuário por email
-      const userResponse = await api.get<User & { displayName?: string; _links?: any }>(
-        API_ENDPOINTS.USER_BY_EMAIL(credentials.email)
-      );
+      // busca usuário por email - api pode retornar em _embedded ou direto
+      const userResponse = await api.get<any>(API_ENDPOINTS.USER_BY_EMAIL(credentials.email));
       
-      // extrai dados do usuário (remove _links do HATEOAS se existir)
+      // trata resposta HATEOAS (pode vir em _embedded ou direto)
+      let userData = userResponse;
+      if (userResponse && typeof userResponse === 'object' && !userResponse.id && userResponse._embedded) {
+        // se veio em _embedded, extrai
+        const embeddedKeys = Object.keys(userResponse._embedded);
+        if (embeddedKeys.length > 0) {
+          const embeddedData = userResponse._embedded[embeddedKeys[0]];
+          userData = Array.isArray(embeddedData) ? embeddedData[0] : embeddedData;
+        }
+      }
+      
+      // remove _links se existir
+      const { _links, ...cleanUserData } = userData || {};
+      
       // api java usa displayName, não name
       const user: User = {
-        id: userResponse.id,
-        name: userResponse.displayName || userResponse.name || userResponse.email?.split('@')[0] || 'Usuário',
-        email: userResponse.email,
-        avatar: userResponse.avatar,
+        id: cleanUserData.id,
+        name: cleanUserData.displayName || cleanUserData.name || cleanUserData.email?.split('@')[0] || 'Usuário',
+        email: cleanUserData.email,
+        avatar: cleanUserData.avatar,
       };
       
       // salva usuário (sem token, pois a API não tem autenticação JWT ainda)

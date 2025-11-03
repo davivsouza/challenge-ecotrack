@@ -1,9 +1,10 @@
-import { mockProducts } from '@/data/mockProducts';
+import { productService } from '@/services/productService';
 import { Product } from '@/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Dimensions,
   Image,
@@ -20,14 +21,49 @@ export default function ProductDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [alternatives, setAlternatives] = useState<Product[]>([]);
+  const loadingRef = React.useRef(false);
 
   useEffect(() => {
     if (id) {
-      const foundProduct = mockProducts.find(p => p.id === id);
-      setProduct(foundProduct || null);
-      setLoading(false);
+      loadProduct();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  const loadProduct = async () => {
+    // evita múltiplas chamadas simultâneas
+    if (loadingRef.current) return;
+    loadingRef.current = true;
+    
+    try {
+      setLoading(true);
+      const productData = await productService.getProductById(id);
+      setProduct(productData);
+      
+      // carrega alternativas se existirem (limitado a 3 para evitar muitas requisições)
+      if (productData.alternatives && productData.alternatives.length > 0) {
+        // limita a 3 alternativas e busca sem impacto/nutrição para evitar loops
+        const altProducts = await Promise.all(
+          productData.alternatives.slice(0, 3).map(async (altId: string) => {
+            try {
+              const altData = await productService.getProductById(altId);
+              return altData;
+            } catch {
+              return null;
+            }
+          })
+        );
+        setAlternatives(altProducts.filter(p => p !== null) as Product[]);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar produto:', error);
+      Alert.alert('Erro', 'Não foi possível carregar o produto');
+    } finally {
+      setLoading(false);
+      loadingRef.current = false;
+    }
+  };
 
   const addToHistory = async () => {
     if (!product) return;
@@ -79,6 +115,7 @@ export default function ProductDetailsScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#10B981" />
         <Text style={styles.loadingText}>Carregando produto...</Text>
       </View>
     );
@@ -183,33 +220,28 @@ export default function ProductDetailsScreen() {
           </View>
         </View>
 
-        {product.alternatives && product.alternatives.length > 0 && (
+        {alternatives.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Alternativas Sustentáveis</Text>
             <View style={styles.alternativesContainer}>
-              {product.alternatives.map((altId) => {
-                const altProduct = mockProducts.find(p => p.id === altId);
-                if (!altProduct) return null;
-                
-                return (
-                  <TouchableOpacity
-                    key={altId}
-                    style={styles.alternativeItem}
-                    onPress={() => router.push(`/product/${altId}`)}
-                  >
-                    <Image source={{ uri: altProduct.image }} style={styles.alternativeImage} />
-                    <View style={styles.alternativeInfo}>
-                      <Text style={styles.alternativeName}>{altProduct.name}</Text>
-                      <Text style={styles.alternativeBrand}>{altProduct.brand}</Text>
-                      <View style={styles.alternativeScores}>
-                        <Text style={[styles.alternativeScore, { color: getScoreColor(altProduct.sustainabilityScore) }]}>
-                          Sustentabilidade: {altProduct.sustainabilityScore}
-                        </Text>
-                      </View>
+              {alternatives.map((altProduct) => (
+                <TouchableOpacity
+                  key={altProduct.id}
+                  style={styles.alternativeItem}
+                  onPress={() => router.push(`/product/${altProduct.id}`)}
+                >
+                  <Image source={{ uri: altProduct.image }} style={styles.alternativeImage} />
+                  <View style={styles.alternativeInfo}>
+                    <Text style={styles.alternativeName}>{altProduct.name}</Text>
+                    <Text style={styles.alternativeBrand}>{altProduct.brand}</Text>
+                    <View style={styles.alternativeScores}>
+                      <Text style={[styles.alternativeScore, { color: getScoreColor(altProduct.sustainabilityScore) }]}>
+                        Sustentabilidade: {altProduct.sustainabilityScore}
+                      </Text>
                     </View>
-                  </TouchableOpacity>
-                );
-              })}
+                  </View>
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
         )}

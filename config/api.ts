@@ -1,7 +1,8 @@
 // configuração da api java
 export const API_CONFIG = {
   // altere para a url da sua api java
-  BASE_URL: process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080/api',
+  // base url sem /api pois endpoints já incluem /api
+  BASE_URL: process.env.EXPO_PUBLIC_API_URL || 'http://192.168.100.20:8080/api',
   TIMEOUT: 10000,
 };
 

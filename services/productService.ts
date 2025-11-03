@@ -11,8 +11,12 @@ export const productService = {
         API_ENDPOINTS.PRODUCT_BY_BARCODE(barcode)
       );
       
-      // remove _links do HATEOAS
-      const { _links, ...productData } = response as any;
+      // remove _links do HATEOAS se existir
+      const { _links, ...productData } = response || {};
+      
+      if (!productData.id) {
+        throw new Error('Produto não encontrado');
+      }
       
       // busca impacto ambiental e nutrição separadamente
       const [impact, nutrition] = await Promise.all([
@@ -29,7 +33,7 @@ export const productService = {
       if (error instanceof ApiError) {
         throw new Error(error.message || 'Erro ao buscar produto');
       }
-      throw new Error('Erro de conexão. Tente novamente.');
+      throw error instanceof Error ? error : new Error('Erro de conexão. Tente novamente.');
     }
   },
 
@@ -40,8 +44,12 @@ export const productService = {
         API_ENDPOINTS.PRODUCT_BY_ID(id)
       );
       
-      // remove _links do HATEOAS
-      const { _links, ...productData } = response as any;
+      // remove _links do HATEOAS se existir
+      const { _links, ...productData } = response || {};
+      
+      if (!productData.id) {
+        throw new Error('Produto não encontrado');
+      }
       
       // busca impacto ambiental e nutrição separadamente
       const [impact, nutrition] = await Promise.all([
@@ -58,28 +66,30 @@ export const productService = {
       if (error instanceof ApiError) {
         throw new Error(error.message || 'Erro ao buscar produto');
       }
-      throw new Error('Erro de conexão. Tente novamente.');
+      throw error instanceof Error ? error : new Error('Erro de conexão. Tente novamente.');
     }
   },
 
   // lista todos os produtos (com paginação)
+  // otimizado: não busca impacto/nutrição individual para evitar muitas requisições
   async getAllProducts(page: number = 0, size: number = 20): Promise<Product[]> {
     try {
+      // api retorna paginado: _embedded.products ou content
       const response = await api.get<any[]>(
         `${API_ENDPOINTS.PRODUCTS}?page=${page}&size=${size}`
       );
       
-      // transforma cada produto buscando impacto e nutrição
-      const products = await Promise.all(
-        response.map(async (productData: any) => {
-          const { _links, ...prod } = productData;
-          const [impact, nutrition] = await Promise.all([
-            this.getProductImpact(prod.id).catch(() => null),
-            this.getProductNutrition(prod.id).catch(() => []),
-          ]);
-          return this.transformProductResponse(prod, impact, nutrition);
-        })
-      );
+      // garante que é array
+      const productsArray = Array.isArray(response) ? response : [];
+      
+      // transforma cada produto sem buscar impacto/nutrição individual
+      // isso evita centenas de requisições simultâneas
+      const products = productsArray.map((productData: any) => {
+        // remove _links do HATEOAS
+        const { _links, ...prod } = productData;
+        // usa dados básicos do produto, sem requisições extras
+        return this.transformProductResponse(prod, null, []);
+      });
       
       return products;
     } catch (error) {
@@ -91,6 +101,7 @@ export const productService = {
   },
 
   // busca produtos alternativos
+  // deprecado: usar busca direta por ID para evitar loops
   async getAlternativeProducts(productId: string): Promise<Product[]> {
     try {
       const product = await this.getProductById(productId);
@@ -98,12 +109,17 @@ export const productService = {
         return [];
       }
 
+      // limita a 5 alternativas para evitar muitas requisições
+      const limitedAlternatives = product.alternatives.slice(0, 5);
+      
       // busca todos os produtos alternativos
       const alternatives = await Promise.all(
-        product.alternatives.map((altId) => this.getProductById(altId))
+        limitedAlternatives.map((altId) => 
+          this.getProductById(altId).catch(() => null)
+        )
       );
 
-      return alternatives;
+      return alternatives.filter(p => p !== null) as Product[];
     } catch (error) {
       console.error('Erro ao buscar alternativas:', error);
       return [];
@@ -124,11 +140,17 @@ export const productService = {
   // busca informações nutricionais do produto
   async getProductNutrition(productId: string): Promise<any[]> {
     try {
+      // api retorna lista de nutrição, pode vir em _embedded ou direto
       const response = await api.get<any[]>(API_ENDPOINTS.NUTRITION_BY_PRODUCT(productId));
-      return Array.isArray(response) ? response.map((item: any) => {
+      
+      // garante que é array
+      const nutritionArray = Array.isArray(response) ? response : [];
+      
+      // remove _links de cada item
+      return nutritionArray.map((item: any) => {
         const { _links, ...nutri } = item;
         return nutri;
-      }) : [];
+      });
     } catch (error) {
       return [];
     }

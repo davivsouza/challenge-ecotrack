@@ -30,9 +30,9 @@ async function request<T>(
 ): Promise<T> {
   const token = await AsyncStorage.getItem(TOKEN_KEY);
   
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...options.headers,
+    ...(options.headers as Record<string, string> || {}),
   };
 
   if (token) {
@@ -76,20 +76,29 @@ async function request<T>(
     if (contentType?.includes('application/json')) {
       const jsonData = await response.json();
       
-      // se a resposta tem HATEOAS (_embedded), extrai o conteúdo
+      // spring hateoas retorna paginado com _embedded quando é lista
+      // estrutura: { _embedded: { products: [...] }, _links: {...}, page: {...} }
       if (jsonData._embedded && typeof jsonData._embedded === 'object') {
         const embeddedKeys = Object.keys(jsonData._embedded);
         if (embeddedKeys.length > 0) {
-          return jsonData._embedded[embeddedKeys[0]] as T;
+          // retorna array do primeiro _embedded
+          const embeddedArray = jsonData._embedded[embeddedKeys[0]];
+          if (Array.isArray(embeddedArray)) {
+            return embeddedArray as T;
+          }
+          // se não é array, retorna o objeto
+          return embeddedArray as T;
         }
       }
       
-      // se tem content (paginado)
+      // spring data retorna paginado com content
+      // estrutura: { content: [...], page: {...}, totalElements: ... }
       if (Array.isArray(jsonData.content)) {
         return jsonData.content as T;
       }
       
-      // retorna direto (pode ter _links do HATEOAS)
+      // retorna direto (objeto único com _links ou array direto)
+      // remove _links se for objeto único para facilitar uso
       return jsonData as T;
     }
 

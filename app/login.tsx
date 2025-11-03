@@ -1,4 +1,4 @@
-import { getUserByCredentials } from '@/data/mockProducts';
+import { authService } from '@/services/authService';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -14,8 +14,8 @@ import {
 } from 'react-native';
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('usuario@ecotrack.com');
-  const [password, setPassword] = useState('123456');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
@@ -26,18 +26,14 @@ export default function LoginScreen() {
 
     setLoading(true);
     
-    // simula delay de autenticação
-    setTimeout(() => {
-      const user = getUserByCredentials(email, password);
-      
-      if (user) {
-        router.replace('/(tabs)');
-      } else {
-        Alert.alert('Erro', 'Email ou senha incorretos');
-      }
-      
+    try {
+      await authService.login({ email, password });
+      router.replace('/(tabs)');
+    } catch (error) {
+      Alert.alert('Erro', error instanceof Error ? error.message : 'Erro ao fazer login');
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -88,9 +84,7 @@ export default function LoginScreen() {
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            Credenciais de teste:{'\n'}
-            Email: usuario@ecotrack.com{'\n'}
-            Senha: 123456
+            Use um email de usuário cadastrado na API
           </Text>
         </View>
       </View>

@@ -1,7 +1,9 @@
-import { mockProducts } from '@/data/mockProducts';
+import { productService } from '@/services/productService';
+import { Product } from '@/types';
 import { router } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   FlatList,
   Image,
   StyleSheet,
@@ -11,6 +13,32 @@ import {
 } from 'react-native';
 
 export default function ExploreScreen() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const loadingRef = React.useRef(false);
+
+  useEffect(() => {
+    loadProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const loadProducts = async () => {
+    // evita múltiplas chamadas simultâneas
+    if (loadingRef.current) return;
+    loadingRef.current = true;
+    
+    try {
+      setLoading(true);
+      const data = await productService.getAllProducts(0, 20);
+      setProducts(data);
+    } catch (error) {
+      console.error('Erro ao carregar produtos:', error);
+    } finally {
+      setLoading(false);
+      loadingRef.current = false;
+    }
+  };
   const getScoreColor = (score: number) => {
     if (score >= 80) return '#10B981';
     if (score >= 60) return '#F59E0B';
@@ -50,6 +78,15 @@ export default function ExploreScreen() {
     </TouchableOpacity>
   );
 
+  if (loading && products.length === 0) {
+    return (
+      <View style={[styles.container, styles.centerContainer]}>
+        <ActivityIndicator size="large" color="#10B981" />
+        <Text style={styles.loadingText}>Carregando produtos...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -57,13 +94,21 @@ export default function ExploreScreen() {
         <Text style={styles.subtitle}>Descubra produtos sustentáveis</Text>
       </View>
 
-      <FlatList
-        data={mockProducts}
-        renderItem={renderProduct}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContainer}
-        showsVerticalScrollIndicator={false}
-      />
+      {products.length === 0 ? (
+        <View style={styles.centerContainer}>
+          <Text style={styles.emptyText}>Nenhum produto encontrado</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={products}
+          renderItem={renderProduct}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContainer}
+          showsVerticalScrollIndicator={false}
+          refreshing={loading}
+          onRefresh={loadProducts}
+        />
+      )}
     </View>
   );
 }
@@ -157,5 +202,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     textTransform: 'capitalize',
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#64748B',
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#64748B',
+    textAlign: 'center',
   },
 });
