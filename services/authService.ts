@@ -15,7 +15,7 @@ export const authService = {
   async login(credentials: LoginRequest): Promise<User> {
     try {
       // busca usuário por email
-      const userResponse = await api.get<User & { _links?: any }>(
+      const userResponse = await api.get<User & { displayName?: string; _links?: any }>(
         API_ENDPOINTS.USER_BY_EMAIL(credentials.email)
       );
       
@@ -50,7 +50,8 @@ export const authService = {
 
   // verifica se está autenticado
   async isAuthenticated(): Promise<boolean> {
-    const token = await import('@/services/api').then((m) => m.getAuthToken());
+    const { getAuthToken } = await import('@/services/api');
+    const token = await getAuthToken();
     return !!token;
   },
 };
