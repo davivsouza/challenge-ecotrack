@@ -1,5 +1,7 @@
 # EcoTrack - Aplicativo de Consumo Sustentável 🌱
-
+Davi Vasconcelos Souza	559906
+Gustavo Dantas Oliveira	560685
+Paulo Neto	560262
 O **EcoTrack** é uma plataforma mobile que empodera consumidores a fazer escolhas de compra mais saudáveis e sustentáveis, centralizando informações de impacto ambiental e nutricional dos produtos em um único aplicativo.
 
 ## 📱 Funcionalidades
