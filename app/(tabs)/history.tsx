@@ -1,6 +1,6 @@
-import { mockProducts } from '@/data/mockProducts';
-import { Product, ScanHistory } from '@/types';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { historyService } from '@/services/historyService';
+import { getAuthUser } from '@/services/api';
+import { ScanHistory } from '@/types';
 import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
@@ -13,8 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
-const STORAGE_KEY = '@ecotrack_history';
 
 export default function HistoryScreen() {
   const [history, setHistory] = useState<ScanHistory[]>([]);
@@ -34,64 +32,29 @@ export default function HistoryScreen() {
 
   const loadHistory = async () => {
     try {
-      const storedHistory = await AsyncStorage.getItem(STORAGE_KEY);
-      if (storedHistory) {
-        const parsedHistory = JSON.parse(storedHistory).map((item: any) => ({
-          ...item,
-          scannedAt: new Date(item.scannedAt)
-        }));
-        setHistory(parsedHistory);
-      } else {
-        // adiciona alguns itens de exemplo
-        const sampleHistory: ScanHistory[] = [
-          {
-            id: '1',
-            productId: '1',
-            scannedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 dias atrás
-            product: mockProducts[0]
-          },
-          {
-            id: '2',
-            productId: '2',
-            scannedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 dias atrás
-            product: mockProducts[1]
-          },
-          {
-            id: '3',
-            productId: '3',
-            scannedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 semana atrás
-            product: mockProducts[2]
+      // tenta carregar da api primeiro, depois do local
+      try {
+        const user = await getAuthUser();
+        if (user?.email) {
+          const apiHistory = await historyService.getApiHistory(user.email);
+          if (apiHistory.length > 0) {
+            setHistory(apiHistory);
+            setLoading(false);
+            return;
           }
-        ];
-        setHistory(sampleHistory);
-        await saveHistory(sampleHistory);
+        }
+      } catch (apiError) {
+        console.warn('Erro ao carregar da API, usando histórico local');
       }
+
+      // fallback para histórico local
+      const localHistory = await historyService.getLocalHistory();
+      setHistory(localHistory);
     } catch (error) {
       console.error('Erro ao carregar histórico:', error);
     } finally {
       setLoading(false);
     }
-  };
-
-  const saveHistory = async (newHistory: ScanHistory[]) => {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
-    } catch (error) {
-      console.error('Erro ao salvar histórico:', error);
-    }
-  };
-
-  const addToHistory = async (product: Product) => {
-    const newItem: ScanHistory = {
-      id: Date.now().toString(),
-      productId: product.id,
-      scannedAt: new Date(),
-      product
-    };
-
-    const updatedHistory = [newItem, ...history];
-    setHistory(updatedHistory);
-    await saveHistory(updatedHistory);
   };
 
   const clearHistory = () => {
@@ -104,8 +67,12 @@ export default function HistoryScreen() {
           text: 'Limpar',
           style: 'destructive',
           onPress: async () => {
-            setHistory([]);
-            await AsyncStorage.removeItem(STORAGE_KEY);
+            try {
+              await historyService.clearHistory();
+              setHistory([]);
+            } catch (error) {
+              Alert.alert('Erro', 'Não foi possível limpar o histórico');
+            }
           }
         }
       ]
