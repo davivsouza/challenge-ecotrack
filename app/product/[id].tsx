@@ -137,7 +137,7 @@ export default function ProductDetailsScreen() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.imageContainer}>
+      {/* <View style={styles.imageContainer}>
         <Image source={{ uri: product.image }} style={styles.productImage} />
         <TouchableOpacity
           style={styles.backButton}
@@ -145,7 +145,7 @@ export default function ProductDetailsScreen() {
         >
           <Text style={styles.backButtonText}>← Voltar</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       <View style={styles.content}>
         <View style={styles.header}>

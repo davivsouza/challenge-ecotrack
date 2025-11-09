@@ -1,12 +1,26 @@
-import { api, ApiError, getAuthUser } from '@/services/api';
+import { api, getAuthUser } from '@/services/api';
 import { API_ENDPOINTS } from '@/config/api';
 import { ScanHistory, Product } from '@/types';
+import { productService } from '@/services/productService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const STORAGE_KEY = '@ecotrack_history';
 
 // serviço de histórico
 export const historyService = {
+  // salva escaneamento na api (chamado automaticamente ao escanear)
+  async saveScan(email: string, barcode: string): Promise<void> {
+    try {
+      await api.post(API_ENDPOINTS.SCAN, {
+        email,
+        barcode,
+      });
+    } catch (error: any) {
+      // não lança erro para não interromper o fluxo de escaneamento
+      console.warn('Não foi possível salvar escaneamento na API:', error);
+    }
+  },
+
   // adiciona produto ao histórico (local e api)
   async addToHistory(product: Product): Promise<void> {
     try {
@@ -64,19 +78,91 @@ export const historyService = {
   // busca histórico da api (/api/scan/history?email={email})
   async getApiHistory(email: string): Promise<ScanHistory[]> {
     try {
-      const response = await api.get<ScanHistory[]>(
-        API_ENDPOINTS.SCAN_HISTORY(email)
+      const response = await api.get(API_ENDPOINTS.SCAN_HISTORY(email));
+      const data = Array.isArray(response.data) ? response.data : [];
+      
+      // busca produtos completos para cada item do histórico
+      const historyWithProducts = await Promise.all(
+        data.map(async (item: any) => {
+          const { _links, ...scanHistory } = item;
+          
+          // busca produto completo se tiver id
+          let product: Product | null = null;
+          if (item.product?.id) {
+            try {
+              product = await productService.getProductById(item.product.id);
+            } catch (error) {
+              console.warn(`Erro ao buscar produto ${item.product.id}:`, error);
+              // usa dados básicos do produto se falhar
+              product = null;
+            }
+          }
+          
+          // se não conseguiu buscar produto completo, usa dados básicos
+          if (!product && item.product) {
+            const basicProduct = item.product;
+            product = {
+              id: basicProduct.id || '',
+              name: basicProduct.name || '',
+              brand: basicProduct.category || '',
+              barcode: basicProduct.barcode || '',
+              image: `https://via.placeholder.com/400?text=${encodeURIComponent(basicProduct.name || 'Produto')}`,
+              nutritionalInfo: {
+                calories: basicProduct.kcal100g || 0,
+                protein: 0,
+                carbs: 0,
+                fat: 0,
+                sugar: 0,
+                sodium: 0,
+                fiber: 0,
+              },
+              environmentalImpact: {
+                carbonFootprint: basicProduct.co2PerUnit || 0,
+                waterUsage: 0,
+                packagingType: 'plástico',
+                sustainabilityScore: 0,
+              },
+              healthScore: 0,
+              sustainabilityScore: 0,
+              alternatives: [],
+            };
+          }
+          
+          return {
+            id: scanHistory.id || Date.now().toString(),
+            productId: item.product?.id || '',
+            scannedAt: new Date(item.scannedAt || new Date()),
+            product: product || {
+              id: '',
+              name: 'Produto não encontrado',
+              brand: '',
+              barcode: '',
+              image: '',
+              nutritionalInfo: {
+                calories: 0,
+                protein: 0,
+                carbs: 0,
+                fat: 0,
+                sugar: 0,
+                sodium: 0,
+                fiber: 0,
+              },
+              environmentalImpact: {
+                carbonFootprint: 0,
+                waterUsage: 0,
+                packagingType: 'plástico',
+                sustainabilityScore: 0,
+              },
+              healthScore: 0,
+              sustainabilityScore: 0,
+            },
+          };
+        })
       );
-      return response.map((item: any) => {
-        const { _links, ...scanHistory } = item;
-        return {
-          ...scanHistory,
-          scannedAt: new Date(item.scannedAt || item.scannedAt || new Date()),
-          product: item.product || {},
-        };
-      });
-    } catch (error) {
-      if (error instanceof ApiError && error.status === 404) {
+      
+      return historyWithProducts;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
         return [];
       }
       throw error;

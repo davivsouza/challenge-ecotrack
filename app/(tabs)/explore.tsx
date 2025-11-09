@@ -50,7 +50,7 @@ export default function ExploreScreen() {
       style={styles.productCard}
       onPress={() => router.push(`/product/${item.id}`)}
     >
-      <Image source={{ uri: item.image }} style={styles.productImage} />
+      {/* <Image source={{ uri: item.image }} style={styles.productImage} /> */}
       <View style={styles.productInfo}>
         <Text style={styles.productName}>{item.name}</Text>
         <Text style={styles.productBrand}>{item.brand}</Text>

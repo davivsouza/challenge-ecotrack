@@ -101,7 +101,7 @@ export default function HistoryScreen() {
       style={styles.historyItem}
       onPress={() => router.push(`/product/${item.product.id}`)}
     >
-      <Image source={{ uri: item.product.image }} style={styles.productImage} />
+      {/* <Image source={{ uri: item.product.image }} style={styles.productImage} /> */}
       <View style={styles.productInfo}>
         <Text style={styles.productName}>{item.product.name}</Text>
         <Text style={styles.productBrand}>{item.product.brand}</Text>

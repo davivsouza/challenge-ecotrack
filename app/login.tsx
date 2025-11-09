@@ -24,15 +24,18 @@ export default function LoginScreen() {
       return;
     }
 
+    // previne múltiplos cliques
+    if (loading) return;
+
     setLoading(true);
     
     try {
       await authService.login({ email, password });
+      // não seta loading como false após redirect bem-sucedido
       router.replace('/(tabs)');
     } catch (error) {
-      Alert.alert('Erro', error instanceof Error ? error.message : 'Erro ao fazer login');
-    } finally {
       setLoading(false);
+      Alert.alert('Erro', error instanceof Error ? error.message : 'Erro ao fazer login');
     }
   };
 

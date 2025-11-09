@@ -1,4 +1,6 @@
 import { productService } from '@/services/productService';
+import { historyService } from '@/services/historyService';
+import { getAuthUser } from '@/services/api';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -26,6 +28,18 @@ export default function ScanScreen() {
     
     try {
       const product = await productService.getProductByBarcode(barcode);
+      
+      // salva automaticamente no histórico via api
+      try {
+        const user = await getAuthUser();
+        if (user?.email) {
+          await historyService.saveScan(user.email, product.barcode);
+        }
+      } catch (scanError) {
+        // não interrompe o fluxo se falhar ao salvar no histórico
+        console.warn('Erro ao salvar no histórico:', scanError);
+      }
+      
       router.push(`/product/${product.id}`);
     } catch (error) {
       Alert.alert('Produto não encontrado', error instanceof Error ? error.message : 'Este produto não está em nossa base de dados');
@@ -44,6 +58,18 @@ export default function ScanScreen() {
     
     try {
       const product = await productService.getProductByBarcode(barcode);
+      
+      // salva automaticamente no histórico via api
+      try {
+        const user = await getAuthUser();
+        if (user?.email) {
+          await historyService.saveScan(user.email, product.barcode);
+        }
+      } catch (scanError) {
+        // não interrompe o fluxo se falhar ao salvar no histórico
+        console.warn('Erro ao salvar no histórico:', scanError);
+      }
+      
       router.push(`/product/${product.id}`);
     } catch (error) {
       Alert.alert('Produto não encontrado', error instanceof Error ? error.message : 'Este produto não está em nossa base de dados');

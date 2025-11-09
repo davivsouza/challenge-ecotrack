@@ -1,4 +1,4 @@
-import { api, ApiError } from '@/services/api';
+import { api } from '@/services/api';
 import { API_ENDPOINTS } from '@/config/api';
 import { Product } from '@/types';
 
@@ -7,96 +7,73 @@ export const productService = {
   // busca produto por código de barras
   async getProductByBarcode(barcode: string): Promise<Product> {
     try {
-      const response = await api.get<any>(
-        API_ENDPOINTS.PRODUCT_BY_BARCODE(barcode)
-      );
-      
-      // remove _links do HATEOAS se existir
-      const { _links, ...productData } = response || {};
+      const response = await api.get(API_ENDPOINTS.PRODUCT_BY_BARCODE(barcode));
+      const { _links, ...productData } = response.data || {};
       
       if (!productData.id) {
         throw new Error('Produto não encontrado');
       }
       
-      // busca impacto ambiental e nutrição separadamente
       const [impact, nutrition] = await Promise.all([
         this.getProductImpact(productData.id).catch(() => null),
         this.getProductNutrition(productData.id).catch(() => []),
       ]);
       
-      // transforma para o formato esperado pelo mobile
       return this.transformProductResponse(productData, impact, nutrition);
-    } catch (error) {
-      if (error instanceof ApiError && error.status === 404) {
+    } catch (error: any) {
+      if (error.response?.status === 404) {
         throw new Error('Produto não encontrado');
       }
-      if (error instanceof ApiError) {
-        throw new Error(error.message || 'Erro ao buscar produto');
-      }
-      throw error instanceof Error ? error : new Error('Erro de conexão. Tente novamente.');
+      throw new Error(error.response?.data?.message || 'Erro ao buscar produto');
     }
   },
 
   // busca produto por id
   async getProductById(id: string): Promise<Product> {
     try {
-      const response = await api.get<any>(
-        API_ENDPOINTS.PRODUCT_BY_ID(id)
-      );
-      
-      // remove _links do HATEOAS se existir
-      const { _links, ...productData } = response || {};
+      const response = await api.get(API_ENDPOINTS.PRODUCT_BY_ID(id));
+      const { _links, ...productData } = response.data || {};
       
       if (!productData.id) {
         throw new Error('Produto não encontrado');
       }
       
-      // busca impacto ambiental e nutrição separadamente
       const [impact, nutrition] = await Promise.all([
         this.getProductImpact(id).catch(() => null),
         this.getProductNutrition(id).catch(() => []),
       ]);
       
-      // transforma para o formato esperado pelo mobile
       return this.transformProductResponse(productData, impact, nutrition);
-    } catch (error) {
-      if (error instanceof ApiError && error.status === 404) {
+    } catch (error: any) {
+      if (error.response?.status === 404) {
         throw new Error('Produto não encontrado');
       }
-      if (error instanceof ApiError) {
-        throw new Error(error.message || 'Erro ao buscar produto');
-      }
-      throw error instanceof Error ? error : new Error('Erro de conexão. Tente novamente.');
+      throw new Error(error.response?.data?.message || 'Erro ao buscar produto');
     }
   },
 
   // lista todos os produtos (com paginação)
-  // otimizado: não busca impacto/nutrição individual para evitar muitas requisições
   async getAllProducts(page: number = 0, size: number = 20): Promise<Product[]> {
     try {
-      // api retorna paginado: _embedded.products ou content
-      const response = await api.get<any[]>(
-        `${API_ENDPOINTS.PRODUCTS}?page=${page}&size=${size}`
-      );
+      const response = await api.get(`${API_ENDPOINTS.PRODUCTS}?page=${page}&size=${size}`);
+      const data = response.data;
       
-      // garante que é array
-      const productsArray = Array.isArray(response) ? response : [];
+      // extrai produtos de _embedded.productList
+      let productsArray: any[] = [];
+      if (data._embedded?.productList) {
+        productsArray = data._embedded.productList;
+      } else if (Array.isArray(data)) {
+        productsArray = data;
+      } else if (data.content) {
+        productsArray = data.content;
+      }
       
-      // transforma cada produto sem buscar impacto/nutrição individual
-      // isso evita centenas de requisições simultâneas
-      const products = productsArray.map((productData: any) => {
-        // remove _links do HATEOAS
+      return productsArray.map((productData: any) => {
         const { _links, ...prod } = productData;
-        // usa dados básicos do produto, sem requisições extras
         return this.transformProductResponse(prod, null, []);
       });
-      
-      return products;
-    } catch (error) {
-      if (error instanceof ApiError) {
-        throw new Error(error.message || 'Erro ao listar produtos');
-      }
-      throw new Error('Erro de conexão. Tente novamente.');
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Erro ao listar produtos');
     }
   },
 
@@ -129,8 +106,8 @@ export const productService = {
   // busca impacto ambiental do produto
   async getProductImpact(productId: string): Promise<any> {
     try {
-      const response = await api.get<any>(API_ENDPOINTS.IMPACT_BY_PRODUCT(productId));
-      const { _links, ...impact } = response as any;
+      const response = await api.get(API_ENDPOINTS.IMPACT_BY_PRODUCT(productId));
+      const { _links, ...impact } = response.data || {};
       return impact;
     } catch (error) {
       return null;
@@ -140,11 +117,11 @@ export const productService = {
   // busca informações nutricionais do produto
   async getProductNutrition(productId: string): Promise<any[]> {
     try {
-      // api retorna lista de nutrição, pode vir em _embedded ou direto
-      const response = await api.get<any[]>(API_ENDPOINTS.NUTRITION_BY_PRODUCT(productId));
+      const response = await api.get(API_ENDPOINTS.NUTRITION_BY_PRODUCT(productId));
+      const data = response.data;
       
       // garante que é array
-      const nutritionArray = Array.isArray(response) ? response : [];
+      const nutritionArray = Array.isArray(data) ? data : [];
       
       // remove _links de cada item
       return nutritionArray.map((item: any) => {
