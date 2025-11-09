@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ExploreScreen() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -80,19 +81,22 @@ export default function ExploreScreen() {
 
   if (loading && products.length === 0) {
     return (
-      <View style={[styles.container, styles.centerContainer]}>
-        <ActivityIndicator size="large" color="#10B981" />
-        <Text style={styles.loadingText}>Carregando produtos...</Text>
-      </View>
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <View style={[styles.container, styles.centerContainer]}>
+          <ActivityIndicator size="large" color="#10B981" />
+          <Text style={styles.loadingText}>Carregando produtos...</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Explorar Produtos</Text>
-        <Text style={styles.subtitle}>Descubra produtos sustentáveis</Text>
-      </View>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Explorar Produtos</Text>
+          <Text style={styles.subtitle}>Descubra produtos sustentáveis</Text>
+        </View>
 
       {products.length === 0 ? (
         <View style={styles.centerContainer}>
@@ -109,18 +113,23 @@ export default function ExploreScreen() {
           onRefresh={loadProducts}
         />
       )}
-    </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+  },
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',
   },
   header: {
     paddingHorizontal: 20,
-    paddingTop: 60,
+    paddingTop: 20,
     paddingBottom: 20,
   },
   title: {

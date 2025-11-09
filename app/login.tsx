@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -40,11 +41,12 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container} 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <View style={styles.content}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+      <KeyboardAvoidingView 
+        style={styles.container} 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <View style={styles.content}>
         <View style={styles.logoContainer}>
           <Image
             source={{ uri: 'https://images.unsplash.com/photo-1569163139394-de44662a1e98?w=200' }}
@@ -91,11 +93,16 @@ export default function LoginScreen() {
           </Text>
         </View>
       </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#E6F4FE',
+  },
   container: {
     flex: 1,
     backgroundColor: '#E6F4FE',

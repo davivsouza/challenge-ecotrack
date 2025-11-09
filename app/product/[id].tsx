@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProductDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -88,29 +89,34 @@ export default function ProductDetailsScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#10B981" />
-        <Text style={styles.loadingText}>Carregando produto...</Text>
-      </View>
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#10B981" />
+          <Text style={styles.loadingText}>Carregando produto...</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   if (!product) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Produto não encontrado</Text>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.backButtonText}>Voltar</Text>
-        </TouchableOpacity>
-      </View>
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Produto não encontrado</Text>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.backButtonText}>Voltar</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* <View style={styles.imageContainer}>
         <Image source={{ uri: product.image }} style={styles.productImage} />
         <TouchableOpacity
@@ -220,13 +226,18 @@ export default function ProductDetailsScreen() {
           </View>
         )}
       </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+  },
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',

@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ScanScreen() {
   const [barcode, setBarcode] = useState('');
@@ -79,15 +80,16 @@ export default function ScanScreen() {
   };
 
   return (
-    <ScrollView 
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={false}
-    >
-      <View style={styles.header}>
-        <Text style={styles.title}>EcoTrack</Text>
-        <Text style={styles.subtitle}>Escaneie um produto para ver seu impacto</Text>
-      </View>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <ScrollView 
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.header}>
+          <Text style={styles.title}>EcoTrack</Text>
+          <Text style={styles.subtitle}>Escaneie um produto para ver seu impacto</Text>
+        </View>
 
       <View style={styles.scanContainer}>
         <View style={styles.scannerFrame}>
@@ -147,11 +149,16 @@ export default function ScanScreen() {
         <Text style={styles.tipText}>• Posicione o código de barras dentro do quadro</Text>
         <Text style={styles.tipText}>• Mantenha o dispositivo estável</Text>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+  },
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',
@@ -162,7 +169,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    paddingTop: 60,
+    paddingTop: 20,
     paddingBottom: 30,
   },
   title: {

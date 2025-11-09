@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HistoryScreen() {
   const [history, setHistory] = useState<ScanHistory[]>([]);
@@ -139,9 +140,10 @@ export default function HistoryScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Histórico de Escaneamentos</Text>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Histórico de Escaneamentos</Text>
         {history.length > 0 && (
           <TouchableOpacity onPress={clearHistory} style={styles.clearButton}>
             <Text style={styles.clearButtonText}>Limpar</Text>
@@ -174,11 +176,16 @@ export default function HistoryScreen() {
           showsVerticalScrollIndicator={false}
         />
       )}
-    </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+  },
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',
@@ -197,7 +204,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 60,
+    paddingTop: 20,
     paddingBottom: 20,
   },
   title: {
