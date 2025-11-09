@@ -191,12 +191,12 @@ export default function ProductDetailsScreen() {
               <Text style={styles.environmentalLabel}>Uso de Água</Text>
               <Text style={styles.environmentalValue}>{product.environmentalImpact.waterUsage}L</Text>
             </View>
-            <View style={styles.environmentalItem}>
+            {/* <View style={styles.environmentalItem}>
               <Text style={styles.environmentalLabel}>Tipo de Embalagem</Text>
               <View style={[styles.packagingBadge, { backgroundColor: getPackagingColor(product.environmentalImpact.packagingType) }]}>
                 <Text style={styles.packagingText}>{product.environmentalImpact.packagingType}</Text>
               </View>
-            </View>
+            </View> */}
           </View>
         </View>
 
