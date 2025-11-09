@@ -15,8 +15,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function LoginScreen() {
+  const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
@@ -25,18 +27,35 @@ export default function LoginScreen() {
       return;
     }
 
-    // previne múltiplos cliques
     if (loading) return;
 
     setLoading(true);
     
     try {
       await authService.login({ email, password });
-      // não seta loading como false após redirect bem-sucedido
       router.replace('/(tabs)');
     } catch (error) {
       setLoading(false);
       Alert.alert('Erro', error instanceof Error ? error.message : 'Erro ao fazer login');
+    }
+  };
+
+  const handleRegister = async () => {
+    if (!email || !password || !displayName) {
+      Alert.alert('Erro', 'Por favor, preencha todos os campos');
+      return;
+    }
+
+    if (loading) return;
+
+    setLoading(true);
+    
+    try {
+      await authService.register({ email, password, displayName });
+      router.replace('/(tabs)');
+    } catch (error) {
+      setLoading(false);
+      Alert.alert('Erro', error instanceof Error ? error.message : 'Erro ao cadastrar usuário');
     }
   };
 
@@ -57,6 +76,17 @@ export default function LoginScreen() {
         </View>
 
         <View style={styles.form}>
+          {isRegister && (
+            <TextInput
+              style={styles.input}
+              placeholder="Nome completo"
+              value={displayName}
+              onChangeText={setDisplayName}
+              autoCapitalize="words"
+              autoCorrect={false}
+            />
+          )}
+          
           <TextInput
             style={styles.input}
             placeholder="Email"
@@ -78,18 +108,42 @@ export default function LoginScreen() {
 
           <TouchableOpacity
             style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleLogin}
+            onPress={isRegister ? handleRegister : handleLogin}
             disabled={loading}
           >
             <Text style={styles.buttonText}>
-              {loading ? 'Entrando...' : 'Entrar'}
+              {loading 
+                ? (isRegister ? 'Cadastrando...' : 'Entrando...') 
+                : (isRegister ? 'Cadastrar' : 'Entrar')
+              }
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.toggleButton}
+            onPress={() => {
+              setIsRegister(!isRegister);
+              setEmail('');
+              setPassword('');
+              setDisplayName('');
+            }}
+            disabled={loading}
+          >
+            <Text style={styles.toggleButtonText}>
+              {isRegister 
+                ? 'Já tem uma conta? Entrar' 
+                : 'Não tem uma conta? Cadastrar'
+              }
             </Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            Use um email de usuário cadastrado na API
+            {isRegister 
+              ? 'Crie sua conta para começar a usar o EcoTrack'
+              : 'Use um email de usuário cadastrado na API'
+            }
           </Text>
         </View>
       </View>
@@ -170,5 +224,15 @@ const styles = StyleSheet.create({
     color: '#64748B',
     textAlign: 'center',
     lineHeight: 20,
+  },
+  toggleButton: {
+    marginTop: 16,
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  toggleButtonText: {
+    fontSize: 16,
+    color: '#10B981',
+    fontWeight: '600',
   },
 });

@@ -7,6 +7,12 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  displayName: string;
+}
+
 // serviço de autenticação
 export const authService = {
   // faz login buscando usuário por email
@@ -29,6 +35,35 @@ export const authService = {
         throw new Error('Email ou senha incorretos');
       }
       throw new Error(error.response?.data?.message || 'Erro ao fazer login');
+    }
+  },
+
+  // cadastra novo usuário
+  async register(data: RegisterRequest): Promise<User> {
+    try {
+      const response = await api.post(API_ENDPOINTS.USERS, {
+        id: null,
+        email: data.email,
+        passwordHash: data.password,
+        displayName: data.displayName,
+      });
+      
+      const { _links, ...userData } = response.data || {};
+      
+      const user: User = {
+        id: userData.id,
+        name: userData.displayName || userData.name || userData.email?.split('@')[0] || 'Usuário',
+        email: userData.email,
+        avatar: userData.avatar,
+      };
+      
+      await saveAuthData('mock-token', user);
+      return user;
+    } catch (error: any) {
+      if (error.response?.status === 409 || error.response?.status === 400) {
+        throw new Error(error.response?.data?.message || 'Email já cadastrado');
+      }
+      throw new Error(error.response?.data?.message || 'Erro ao cadastrar usuário');
     }
   },
 
