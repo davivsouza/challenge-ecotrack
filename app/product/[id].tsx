@@ -1,6 +1,5 @@
 import { productService } from '@/services/productService';
 import { Product } from '@/types';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -14,8 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
-const STORAGE_KEY = '@ecotrack_history';
 
 export default function ProductDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -62,29 +59,6 @@ export default function ProductDetailsScreen() {
     } finally {
       setLoading(false);
       loadingRef.current = false;
-    }
-  };
-
-  const addToHistory = async () => {
-    if (!product) return;
-
-    try {
-      const storedHistory = await AsyncStorage.getItem(STORAGE_KEY);
-      const history = storedHistory ? JSON.parse(storedHistory) : [];
-      
-      const newItem = {
-        id: Date.now().toString(),
-        productId: product.id,
-        scannedAt: new Date().toISOString(),
-        product
-      };
-
-      const updatedHistory = [newItem, ...history];
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedHistory));
-      
-      Alert.alert('Sucesso', 'Produto adicionado ao histórico!');
-    } catch (error) {
-      console.error('Erro ao salvar no histórico:', error);
     }
   };
 
@@ -245,13 +219,6 @@ export default function ProductDetailsScreen() {
             </View>
           </View>
         )}
-
-        <TouchableOpacity
-          style={styles.addToHistoryButton}
-          onPress={addToHistory}
-        >
-          <Text style={styles.addToHistoryButtonText}>Adicionar ao Histórico</Text>
-        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -465,19 +432,6 @@ const styles = StyleSheet.create({
   },
   alternativeScore: {
     fontSize: 12,
-    fontWeight: '600',
-  },
-  addToHistoryButton: {
-    backgroundColor: '#10B981',
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 40,
-  },
-  addToHistoryButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
     fontWeight: '600',
   },
 });
