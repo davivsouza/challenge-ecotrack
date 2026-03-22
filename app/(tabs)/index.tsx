@@ -1,154 +1,308 @@
-import { productService } from '@/services/productService';
-import { historyService } from '@/services/historyService';
-import { getAuthUser } from '@/services/api';
-import { router } from 'expo-router';
-import React, { useState } from 'react';
+import { historyService } from "@/services/historyService";
+import { productService } from "@/services/productService";
+import { router } from "expo-router";
+import {
+  BarcodeScanningResult,
+  CameraView,
+  useCameraPermissions,
+} from "expo-camera";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Alert,
-  Image,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ScanScreen() {
-  const [barcode, setBarcode] = useState('');
+  const [barcode, setBarcode] = useState("");
   const [loading, setLoading] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [hasScanned, setHasScanned] = useState(false);
+  const [permission, requestPermission] = useCameraPermissions();
+  const scanLockRef = useRef(false);
+  const scannerActiveRef = useRef(false);
+  const scannerSessionRef = useRef(0);
+  const mountedRef = useRef(true);
 
-  const handleScan = async () => {
-    if (!barcode.trim()) {
-      Alert.alert('Erro', 'Digite um código de barras primeiro');
+  const logScanTrace = (message: string, data?: Record<string, unknown>) => {
+    if (data) {
+      console.log("[EcoTrack][ScanScreen]", message, data);
       return;
     }
-    
+
+    console.log("[EcoTrack][ScanScreen]", message);
+  };
+
+  useEffect(() => {
+    if (!scannerOpen) {
+      setHasScanned(false);
+    }
+  }, [scannerOpen]);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const lookupProduct = async (rawBarcode: string) => {
+    const value = rawBarcode.trim();
+    logScanTrace("Iniciando lookup do produto", {
+      rawBarcode,
+      value,
+      scannerOpen,
+    });
+
+    if (!value) {
+      Alert.alert("Erro", "Digite ou escaneie um código de barras");
+      return;
+    }
+
     setLoading(true);
-    
+
     try {
-      const product = await productService.getProductByBarcode(barcode);
-      
-      // salva automaticamente no histórico via api
-      try {
-        const user = await getAuthUser();
-        if (user?.email) {
-          await historyService.saveScan(user.email, product.barcode);
-        }
-      } catch (scanError) {
-        // não interrompe o fluxo se falhar ao salvar no histórico
-        console.warn('Erro ao salvar no histórico:', scanError);
+      const product = await productService.getProductByBarcode(value);
+      logScanTrace("Produto resolvido com sucesso", {
+        barcode: value,
+        productId: product.id,
+        dataSource: product.dataSource,
+        dataCompleteness: product.dataCompleteness,
+      });
+
+      if (!mountedRef.current) {
+        return;
       }
-      
+
+      setBarcode(product.barcode || value);
+      void historyService.addToHistory(product).catch((historyError) => {
+        logScanTrace("Falha ao salvar histórico em background", {
+          productId: product.id,
+          error:
+            historyError instanceof Error
+              ? historyError.message
+              : "Erro desconhecido",
+        });
+      });
+      logScanTrace("Navegando para detalhe do produto", {
+        productId: product.id,
+      });
       router.push(`/product/${product.id}`);
     } catch (error) {
-      Alert.alert('Produto não encontrado', error instanceof Error ? error.message : 'Este produto não está em nossa base de dados');
+      logScanTrace("Falha no lookup do produto", {
+        barcode: value,
+        error: error instanceof Error ? error.message : "Erro desconhecido",
+      });
+      if (!mountedRef.current) {
+        return;
+      }
+
+      Alert.alert(
+        "Produto não encontrado",
+        error instanceof Error
+          ? error.message
+          : "Este produto não está disponível no momento",
+      );
     } finally {
-      setLoading(false);
+      scanLockRef.current = false;
+
+      if (mountedRef.current) {
+        setLoading(false);
+      }
     }
   };
 
   const handleManualBarcode = async () => {
-    if (!barcode.trim()) {
-      Alert.alert('Erro', 'Digite um código de barras');
+    await lookupProduct(barcode);
+  };
+
+  const handleOpenScanner = async () => {
+    logScanTrace("Ação de abrir/fechar scanner", {
+      loading,
+      scannerOpen,
+    });
+    if (loading) {
       return;
     }
 
-    setLoading(true);
-    
-    try {
-      const product = await productService.getProductByBarcode(barcode);
-      
-      // salva automaticamente no histórico via api
-      try {
-        const user = await getAuthUser();
-        if (user?.email) {
-          await historyService.saveScan(user.email, product.barcode);
-        }
-      } catch (scanError) {
-        // não interrompe o fluxo se falhar ao salvar no histórico
-        console.warn('Erro ao salvar no histórico:', scanError);
-      }
-      
-      router.push(`/product/${product.id}`);
-    } catch (error) {
-      Alert.alert('Produto não encontrado', error instanceof Error ? error.message : 'Este produto não está em nossa base de dados');
-    } finally {
-      setLoading(false);
+    if (scannerOpen) {
+      scannerSessionRef.current += 1;
+      scanLockRef.current = false;
+      scannerActiveRef.current = false;
+      setScannerOpen(false);
+      setHasScanned(false);
+      logScanTrace("Scanner fechado manualmente");
+      return;
     }
+
+    const response = permission?.granted
+      ? permission
+      : await requestPermission();
+
+    if (!response?.granted) {
+      logScanTrace("Permissão de câmera negada");
+      Alert.alert(
+        "Permissão necessária",
+        "Autorize a câmera para escanear códigos de barras de produtos.",
+      );
+      return;
+    }
+
+    setHasScanned(false);
+    scanLockRef.current = false;
+    scannerActiveRef.current = true;
+    scannerSessionRef.current += 1;
+    setScannerOpen(true);
+    logScanTrace("Scanner aberto", {
+      scannerSession: scannerSessionRef.current,
+    });
+  };
+
+  const handleBarcodeScanned = async ({ data }: BarcodeScanningResult) => {
+    if (
+      !data ||
+      loading ||
+      hasScanned ||
+      scanLockRef.current ||
+      !scannerActiveRef.current
+    ) {
+      return;
+    }
+
+    const activeSession = scannerSessionRef.current;
+    scanLockRef.current = true;
+    scannerActiveRef.current = false;
+    logScanTrace("Primeiro barcode aceito para processamento", {
+      data,
+      activeSession,
+    });
+    setHasScanned(true);
+    setScannerOpen(false);
+    setBarcode(data);
+
+    if (activeSession !== scannerSessionRef.current) {
+      scanLockRef.current = false;
+      logScanTrace("Leitura descartada por sessão inválida", {
+        data,
+        activeSession,
+        currentSession: scannerSessionRef.current,
+      });
+      return;
+    }
+
+    await lookupProduct(data);
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <ScrollView 
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
           <Text style={styles.title}>EcoTrack</Text>
-          <Text style={styles.subtitle}>Escaneie um produto para ver seu impacto</Text>
+          <Text style={styles.subtitle}>
+            Escaneie um produto para ver impacto e nutrição reais
+          </Text>
         </View>
 
-      <View style={styles.scanContainer}>
-        <View style={styles.scannerFrame}>
-          <Image
-            source={{ uri: 'https://images.unsplash.com/photo-1569163139394-de44662a1e98?w=300' }}
-            style={styles.scannerImage}
-          />
-          <View style={styles.scannerOverlay}>
-            <View style={[styles.corner, styles.topLeft]} />
-            <View style={[styles.corner, styles.topRight]} />
-            <View style={[styles.corner, styles.bottomLeft]} />
-            <View style={[styles.corner, styles.bottomRight]} />
+        <View style={styles.scanContainer}>
+          <View style={styles.scannerFrame}>
+            {scannerOpen ? (
+              <>
+                <CameraView
+                  style={styles.camera}
+                  facing="back"
+                  autofocus="on"
+                  onBarcodeScanned={
+                    hasScanned ? undefined : handleBarcodeScanned
+                  }
+                  barcodeScannerSettings={{
+                    barcodeTypes: [
+                      "ean13",
+                      "ean8",
+                      "upc_a",
+                      "upc_e",
+                      "code128",
+                    ],
+                  }}
+                />
+                <View style={styles.scannerOverlay}>
+                  <View style={[styles.corner, styles.topLeft]} />
+                  <View style={[styles.corner, styles.topRight]} />
+                  <View style={[styles.corner, styles.bottomLeft]} />
+                  <View style={[styles.corner, styles.bottomRight]} />
+                  <View style={styles.scanLine} />
+                </View>
+              </>
+            ) : (
+              <View style={styles.scannerPlaceholder}>
+                <Text style={styles.placeholderTitle}>
+                  Scanner de código de barras
+                </Text>
+                <Text style={styles.placeholderText}>
+                  Abra a câmera e alinhe o código dentro do quadro para buscar
+                  direto na Open Food Facts.
+                </Text>
+              </View>
+            )}
           </View>
+
+          <TouchableOpacity
+            style={[styles.scanButton, loading && styles.scanButtonDisabled]}
+            onPress={handleOpenScanner}
+            disabled={loading}
+          >
+            <Text style={styles.scanButtonText}>
+              {loading
+                ? "Buscando produto..."
+                : scannerOpen
+                  ? "Fechar Scanner"
+                  : "Abrir Scanner"}
+            </Text>
+          </TouchableOpacity>
+
+          {permission && !permission.granted && (
+            <Text style={styles.permissionText}>
+              O acesso à câmera é necessário para escanear automaticamente.
+            </Text>
+          )}
         </View>
 
-        <TouchableOpacity
-          style={[styles.scanButton, loading && styles.scanButtonDisabled]}
-          onPress={() => handleScan()}
-          disabled={loading}
-        >
-          <Text style={styles.scanButtonText}>
-            {loading ? 'Escaneando...' : 'Escanear Produto'}
-          </Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>ou</Text>
+          <View style={styles.dividerLine} />
+        </View>
 
-      <View style={styles.divider}>
-        <View style={styles.dividerLine} />
-        <Text style={styles.dividerText}>ou</Text>
-        <View style={styles.dividerLine} />
-      </View>
-
-      <View style={styles.manualContainer}>
-        <Text style={styles.manualTitle}>Digite o código de barras</Text>
-        <TextInput
-          style={styles.barcodeInput}
-          placeholder="Ex: 7891234567890"
-          value={barcode}
-          onChangeText={setBarcode}
-          keyboardType="numeric"
-          maxLength={13}
-        />
-        <TouchableOpacity
-          style={[styles.manualButton, loading && styles.manualButtonDisabled]}
-          onPress={handleManualBarcode}
-          disabled={loading}
-        >
-          <Text style={styles.manualButtonText}>
-            {loading ? 'Buscando...' : 'Buscar Produto'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.tips}>
-        <Text style={styles.tipsTitle}>Dicas:</Text>
-        <Text style={styles.tipText}>• Digite ou escaneie um código de barras válido</Text>
-        <Text style={styles.tipText}>• Posicione o código de barras dentro do quadro</Text>
-        <Text style={styles.tipText}>• Mantenha o dispositivo estável</Text>
-      </View>
+        <View style={styles.manualContainer}>
+          <Text style={styles.manualTitle}>Digite o código de barras</Text>
+          <TextInput
+            style={styles.barcodeInput}
+            placeholder="Ex: 7891000100103"
+            value={barcode}
+            onChangeText={setBarcode}
+            keyboardType="number-pad"
+            maxLength={14}
+          />
+          <TouchableOpacity
+            style={[
+              styles.manualButton,
+              loading && styles.manualButtonDisabled,
+            ]}
+            onPress={handleManualBarcode}
+            disabled={loading}
+          >
+            <Text style={styles.manualButtonText}>
+              {loading ? "Buscando..." : "Buscar Produto"}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -157,168 +311,206 @@ export default function ScanScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: "#F8FAFC",
   },
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: "#F8FAFC",
   },
   contentContainer: {
     paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingBottom: 24,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingTop: 20,
-    paddingBottom: 30,
+    paddingBottom: 28,
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1E3A8A',
+    fontWeight: "bold",
+    color: "#1E3A8A",
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#64748B',
-    textAlign: 'center',
+    color: "#64748B",
+    textAlign: "center",
+    lineHeight: 22,
   },
   scanContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 30,
   },
   scannerFrame: {
-    width: 280,
-    height: 280,
-    borderRadius: 20,
-    overflow: 'hidden',
-    marginBottom: 30,
-    position: 'relative',
-    backgroundColor: '#E2E8F0',
+    width: 300,
+    height: 300,
+    borderRadius: 24,
+    overflow: "hidden",
+    marginBottom: 24,
+    position: "relative",
+    backgroundColor: "#DCEAFD",
   },
-  scannerImage: {
-    width: '100%',
-    height: '100%',
+  camera: {
+    width: "100%",
+    height: "100%",
+  },
+  scannerPlaceholder: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 28,
+    backgroundColor: "#E6F4FE",
+  },
+  placeholderTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#1E3A8A",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  placeholderText: {
+    fontSize: 15,
+    color: "#475569",
+    textAlign: "center",
+    lineHeight: 22,
   },
   scannerOverlay: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
   },
   corner: {
-    position: 'absolute',
-    width: 30,
-    height: 30,
-    borderColor: '#10B981',
-    borderWidth: 3,
+    position: "absolute",
+    width: 32,
+    height: 32,
+    borderColor: "#10B981",
+    borderWidth: 4,
   },
   topLeft: {
-    top: 20,
-    left: 20,
+    top: 22,
+    left: 22,
     borderRightWidth: 0,
     borderBottomWidth: 0,
   },
   topRight: {
-    top: 20,
-    right: 20,
+    top: 22,
+    right: 22,
     borderLeftWidth: 0,
     borderBottomWidth: 0,
   },
   bottomLeft: {
-    bottom: 20,
-    left: 20,
+    bottom: 22,
+    left: 22,
     borderRightWidth: 0,
     borderTopWidth: 0,
   },
   bottomRight: {
-    bottom: 20,
-    right: 20,
+    bottom: 22,
+    right: 22,
     borderLeftWidth: 0,
     borderTopWidth: 0,
   },
+  scanLine: {
+    position: "absolute",
+    left: 42,
+    right: 42,
+    top: "50%",
+    height: 2,
+    backgroundColor: "#22C55E",
+    opacity: 0.85,
+  },
   scanButton: {
-    backgroundColor: '#10B981',
+    backgroundColor: "#10B981",
     paddingHorizontal: 40,
     paddingVertical: 16,
-    borderRadius: 25,
-    minWidth: 200,
+    borderRadius: 28,
+    minWidth: 210,
   },
   scanButtonDisabled: {
-    backgroundColor: '#9CA3AF',
+    backgroundColor: "#9CA3AF",
   },
   scanButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
-    textAlign: 'center',
+    color: "#FFFFFF",
+    fontSize: 17,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  permissionText: {
+    marginTop: 12,
+    fontSize: 13,
+    color: "#B45309",
+    textAlign: "center",
+    lineHeight: 18,
   },
   divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginVertical: 20,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: "#E2E8F0",
   },
   dividerText: {
     marginHorizontal: 20,
-    color: '#64748B',
+    color: "#64748B",
     fontSize: 16,
   },
   manualContainer: {
-    marginBottom: 30,
+    marginBottom: 28,
   },
   manualTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#1E3A8A',
+    fontWeight: "600",
+    color: "#1E3A8A",
     marginBottom: 12,
-    textAlign: 'center',
+    textAlign: "center",
   },
   barcodeInput: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 16,
     fontSize: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-    textAlign: 'center',
+    borderColor: "#D7E2F0",
+    textAlign: "center",
+    color: "#0F172A",
   },
   manualButton: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: "#2563EB",
     paddingVertical: 16,
     borderRadius: 12,
   },
   manualButtonDisabled: {
-    backgroundColor: '#9CA3AF',
+    backgroundColor: "#9CA3AF",
   },
   manualButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
+    fontWeight: "600",
+    textAlign: "center",
   },
   tips: {
-    backgroundColor: '#E6F4FE',
+    backgroundColor: "#EEF7E8",
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 14,
     marginBottom: 20,
   },
   tipsTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1E3A8A',
+    fontWeight: "600",
+    color: "#166534",
     marginBottom: 8,
   },
   tipText: {
     fontSize: 14,
-    color: '#64748B',
+    color: "#3F6212",
     marginBottom: 4,
     lineHeight: 20,
   },

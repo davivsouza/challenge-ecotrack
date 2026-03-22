@@ -1,15 +1,16 @@
-import { API_CONFIG } from '@/config/api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import { API_CONFIG } from "@/config/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
-const TOKEN_KEY = '@ecotrack_token';
-const USER_KEY = '@ecotrack_user';
+const TOKEN_KEY = "@ecotrack_token";
+const USER_KEY = "@ecotrack_user";
 
 // configuração básica do axios
 export const api = axios.create({
   baseURL: API_CONFIG.BASE_URL,
+  timeout: API_CONFIG.TIMEOUT,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -30,7 +31,7 @@ api.interceptors.response.use(
       await clearAuthData();
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 // funções para gerenciar autenticação
@@ -52,4 +53,3 @@ export async function clearAuthData(): Promise<void> {
   await AsyncStorage.removeItem(TOKEN_KEY);
   await AsyncStorage.removeItem(USER_KEY);
 }
-

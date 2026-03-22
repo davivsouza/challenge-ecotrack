@@ -4,6 +4,11 @@ export interface Product {
   brand: string;
   barcode: string;
   image: string;
+  ingredients?: string;
+  categories?: string[];
+  nutriScore?: string | null;
+  dataSource?: "api" | "open_food_facts" | "cache";
+  dataCompleteness?: "complete" | "partial";
   nutritionalInfo: {
     calories: number;
     protein: number;
@@ -16,8 +21,20 @@ export interface Product {
   environmentalImpact: {
     carbonFootprint: number; // kg CO2
     waterUsage: number; // litros
-    packagingType: 'reciclável' | 'biodegradável' | 'plástico' | 'vidro' | 'papel';
+    packagingType:
+      | "reciclável"
+      | "biodegradável"
+      | "plástico"
+      | "vidro"
+      | "papel";
     sustainabilityScore: number; // 0-100
+    ecoScoreGrade?: string | null;
+    packagingMaterials?: string[];
+    packagingComponents?: string[];
+    agribalyseScore?: number;
+    agribalyseReference?: string;
+    warnings?: string[];
+    missingDataWarning?: boolean;
   };
   healthScore: number; // 0-100
   sustainabilityScore: number; // 0-100
