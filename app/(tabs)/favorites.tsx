@@ -2,50 +2,39 @@ import React from 'react';
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useDeleteHistory, useHistory, useUpdateHistory } from '@/hooks/useProducts';
+import { useDeleteFavorite, useFavorites, useUpdateFavorite } from '@/hooks/useProducts';
 
-export default function HistoryScreen() {
-  const { data, isLoading, refetch, isRefetching } = useHistory();
-  const updateHistory = useUpdateHistory();
-  const deleteHistory = useDeleteHistory();
-
-  const toggleNote = async (id: string, note?: string) => {
-    await updateHistory.mutateAsync({ id, note: note ? '' : 'Produto revisado pelo usuário.' });
-  };
-
-  const handleDelete = (id: string) => {
-    Alert.alert('Excluir registro', 'Deseja remover este item do histórico?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Excluir', style: 'destructive', onPress: () => void deleteHistory.mutateAsync(id) },
-    ]);
-  };
+export default function FavoritesScreen() {
+  const { data, isLoading, refetch, isRefetching } = useFavorites();
+  const updateFavorite = useUpdateFavorite();
+  const deleteFavorite = useDeleteFavorite();
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.container}>
-        <Text style={styles.title}>Histórico</Text>
-        <Text style={styles.subtitle}>CRUD real da funcionalidade de histórico: leitura, criação pelo scan, atualização de anotação e remoção.</Text>
+        <Text style={styles.title}>Favoritos</Text>
+        <Text style={styles.subtitle}>Segunda funcionalidade com CRUD completo integrado pela API.</Text>
         <FlatList
           data={data ?? []}
+          keyExtractor={(item) => item.id}
           onRefresh={refetch}
           refreshing={isRefetching}
-          keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <View style={styles.card}>
               <Text style={styles.name}>{item.product?.name ?? 'Produto indisponível'}</Text>
-              <Text style={styles.meta}>{new Date(item.scannedAt).toLocaleString('pt-BR')}</Text>
-              <Text style={styles.note}>{item.note || 'Sem anotação.'}</Text>
+              <Text style={styles.meta}>{item.product?.brand ?? ''}</Text>
+              <Text style={styles.note}>{item.note || 'Sem observação.'}</Text>
               <View style={styles.row}>
-                <Pressable style={styles.secondaryButton} onPress={() => void toggleNote(item.id, item.note)}>
-                  <Text style={styles.secondaryText}>{item.note ? 'Limpar nota' : 'Adicionar nota'}</Text>
+                <Pressable style={styles.secondaryButton} onPress={() => void updateFavorite.mutateAsync({ id: item.id, note: item.note ? '' : 'Quero comprar novamente.' })}>
+                  <Text style={styles.secondaryText}>{item.note ? 'Limpar nota' : 'Salvar nota'}</Text>
                 </Pressable>
-                <Pressable style={styles.dangerButton} onPress={() => handleDelete(item.id)}>
-                  <Text style={styles.primaryText}>Excluir</Text>
+                <Pressable style={styles.dangerButton} onPress={() => Alert.alert('Remover favorito', 'Deseja remover este favorito?', [{ text: 'Cancelar', style: 'cancel' }, { text: 'Remover', style: 'destructive', onPress: () => void deleteFavorite.mutateAsync(item.id) }])}>
+                  <Text style={styles.primaryText}>Remover</Text>
                 </Pressable>
               </View>
             </View>
           )}
-          ListEmptyComponent={<Text style={styles.empty}>{isLoading ? 'Carregando...' : 'Nenhum item no histórico.'}</Text>}
+          ListEmptyComponent={<Text style={styles.empty}>{isLoading ? 'Carregando...' : 'Nenhum favorito salvo.'}</Text>}
         />
       </View>
     </SafeAreaView>

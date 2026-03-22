@@ -1,238 +1,83 @@
-import { authService } from '@/services/authService';
-import { router } from 'expo-router';
+import { Redirect } from 'expo-router';
 import React, { useState } from 'react';
-import {
-  Alert,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useAuth } from '@/providers/auth-provider';
+
 export default function LoginScreen() {
-  const [isRegister, setIsRegister] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [displayName, setDisplayName] = useState('');
-  const [loading, setLoading] = useState(false);
+  const { signIn, signUp, user, isLoading } = useAuth();
+  const [mode, setMode] = useState<'login' | 'register'>('login');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('demo@ecotrack.com');
+  const [password, setPassword] = useState('123456');
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos');
+  if (!isLoading && user) return <Redirect href="/(tabs)" />;
+
+  const handleSubmit = async () => {
+    if (!email || !password || (mode === 'register' && !name)) {
+      Alert.alert('Campos obrigatórios', 'Preencha todos os campos antes de continuar.');
       return;
     }
 
-    if (loading) return;
-
-    setLoading(true);
-    
+    setSubmitting(true);
     try {
-      await authService.login({ email, password });
-      router.replace('/(tabs)');
+      if (mode === 'login') {
+        await signIn({ email, password });
+      } else {
+        await signUp({ name, email, password });
+      }
     } catch (error) {
-      setLoading(false);
-      Alert.alert('Erro', error instanceof Error ? error.message : 'Erro ao fazer login');
-    }
-  };
-
-  const handleRegister = async () => {
-    if (!email || !password || !displayName) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos');
-      return;
-    }
-
-    if (loading) return;
-
-    setLoading(true);
-    
-    try {
-      await authService.register({ email, password, displayName });
-      router.replace('/(tabs)');
-    } catch (error) {
-      setLoading(false);
-      Alert.alert('Erro', error instanceof Error ? error.message : 'Erro ao cadastrar usuário');
+      Alert.alert('Erro', error instanceof Error ? error.message : 'Não foi possível concluir a autenticação.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-      <KeyboardAvoidingView 
-        style={styles.container} 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <View style={styles.content}>
-        <View style={styles.logoContainer}>
-          <Image
-            source={{ uri: 'https://images.unsplash.com/photo-1569163139394-de44662a1e98?w=200' }}
-            style={styles.logo}
-          />
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <View style={styles.card}>
           <Text style={styles.title}>EcoTrack</Text>
-          <Text style={styles.subtitle}>Escolhas sustentáveis para um futuro melhor</Text>
+          <Text style={styles.subtitle}>Login real com persistência de sessão, navegação protegida e integração HTTP.</Text>
+
+          {mode === 'register' ? (
+            <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Nome" />
+          ) : null}
+          <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="Email" autoCapitalize="none" keyboardType="email-address" />
+          <TextInput style={styles.input} value={password} onChangeText={setPassword} placeholder="Senha" autoCapitalize="none" secureTextEntry />
+
+          <Pressable style={styles.primaryButton} onPress={handleSubmit} disabled={submitting}>
+            <Text style={styles.primaryText}>{submitting ? 'Carregando...' : mode === 'login' ? 'Entrar' : 'Criar conta'}</Text>
+          </Pressable>
+
+          <Pressable onPress={() => setMode((current) => (current === 'login' ? 'register' : 'login'))}>
+            <Text style={styles.switchText}>{mode === 'login' ? 'Ainda não tem conta? Cadastre-se.' : 'Já possui conta? Faça login.'}</Text>
+          </Pressable>
+
+          <View style={styles.demoBox}>
+            <Text style={styles.demoTitle}>Conta pronta para testes</Text>
+            <Text style={styles.demoText}>Email: demo@ecotrack.com</Text>
+            <Text style={styles.demoText}>Senha: 123456</Text>
+          </View>
         </View>
-
-        <View style={styles.form}>
-          {isRegister && (
-            <TextInput
-              style={styles.input}
-              placeholder="Nome completo"
-              value={displayName}
-              onChangeText={setDisplayName}
-              autoCapitalize="words"
-              autoCorrect={false}
-            />
-          )}
-          
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-          
-          <TextInput
-            style={styles.input}
-            placeholder="Senha"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoCapitalize="none"
-          />
-
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={isRegister ? handleRegister : handleLogin}
-            disabled={loading}
-          >
-            <Text style={styles.buttonText}>
-              {loading 
-                ? (isRegister ? 'Cadastrando...' : 'Entrando...') 
-                : (isRegister ? 'Cadastrar' : 'Entrar')
-              }
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.toggleButton}
-            onPress={() => {
-              setIsRegister(!isRegister);
-              setEmail('');
-              setPassword('');
-              setDisplayName('');
-            }}
-            disabled={loading}
-          >
-            <Text style={styles.toggleButtonText}>
-              {isRegister 
-                ? 'Já tem uma conta? Entrar' 
-                : 'Não tem uma conta? Cadastrar'
-              }
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            {isRegister 
-              ? 'Crie sua conta para começar a usar o EcoTrack'
-              : 'Use um email de usuário cadastrado na API'
-            }
-          </Text>
-        </View>
-      </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#E6F4FE',
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#E6F4FE',
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-  },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: 48,
-  },
-  logo: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#1E3A8A',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#64748B',
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  form: {
-    marginBottom: 32,
-  },
-  input: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    fontSize: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  button: {
-    backgroundColor: '#10B981',
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  buttonDisabled: {
-    backgroundColor: '#9CA3AF',
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  footer: {
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: 14,
-    color: '#64748B',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  toggleButton: {
-    marginTop: 16,
-    alignItems: 'center',
-    paddingVertical: 12,
-  },
-  toggleButtonText: {
-    fontSize: 16,
-    color: '#10B981',
-    fontWeight: '600',
-  },
+  safeArea: { flex: 1, backgroundColor: '#F3F7F4' },
+  container: { flex: 1, justifyContent: 'center', padding: 24 },
+  card: { backgroundColor: '#fff', borderRadius: 24, padding: 24, gap: 14, elevation: 3 },
+  title: { fontSize: 32, fontWeight: '700', color: '#123524' },
+  subtitle: { fontSize: 15, lineHeight: 22, color: '#52625a' },
+  input: { borderWidth: 1, borderColor: '#d4dfd8', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 14, fontSize: 16 },
+  primaryButton: { backgroundColor: '#1D7C4D', borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
+  primaryText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  switchText: { textAlign: 'center', color: '#1D7C4D', fontWeight: '600' },
+  demoBox: { backgroundColor: '#eef7f1', padding: 16, borderRadius: 16, gap: 4 },
+  demoTitle: { fontWeight: '700', color: '#123524' },
+  demoText: { color: '#52625a' },
 });
