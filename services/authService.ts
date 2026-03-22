@@ -1,82 +1,37 @@
-import { api, clearAuthData, saveAuthData } from '@/services/api';
-import { API_ENDPOINTS } from '@/config/api';
-import { User } from '@/types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export interface LoginRequest {
+import { api, AUTH_STORAGE_KEY } from '@/services/api';
+import { AuthResponse, User } from '@/types';
+
+export interface LoginPayload {
   email: string;
   password: string;
 }
 
-export interface RegisterRequest {
-  email: string;
-  password: string;
-  displayName: string;
+export interface RegisterPayload extends LoginPayload {
+  name: string;
 }
 
-// serviço de autenticação
 export const authService = {
-  // faz login buscando usuário por email
-  async login(credentials: LoginRequest): Promise<User> {
-    try {
-      const response = await api.get(API_ENDPOINTS.USER_BY_EMAIL(credentials.email));
-      const { _links, ...userData } = response.data || {};
-      
-      const user: User = {
-        id: userData.id,
-        name: userData.displayName || userData.name || userData.email?.split('@')[0] || 'Usuário',
-        email: userData.email,
-        avatar: userData.avatar,
-      };
-      
-      await saveAuthData('mock-token', user);
-      return user;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        throw new Error('Email ou senha incorretos');
-      }
-      throw new Error(error.response?.data?.message || 'Erro ao fazer login');
-    }
+  async login(payload: LoginPayload) {
+    const { data } = await api.post<AuthResponse>('/auth/login', payload);
+    await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data));
+    return data;
   },
-
-  // cadastra novo usuário
-  async register(data: RegisterRequest): Promise<User> {
-    try {
-      const response = await api.post(API_ENDPOINTS.USERS, {
-        id: null,
-        email: data.email,
-        passwordHash: data.password,
-        displayName: data.displayName,
-      });
-      
-      const { _links, ...userData } = response.data || {};
-      
-      const user: User = {
-        id: userData.id,
-        name: userData.displayName || userData.name || userData.email?.split('@')[0] || 'Usuário',
-        email: userData.email,
-        avatar: userData.avatar,
-      };
-      
-      await saveAuthData('mock-token', user);
-      return user;
-    } catch (error: any) {
-      if (error.response?.status === 409 || error.response?.status === 400) {
-        throw new Error(error.response?.data?.message || 'Email já cadastrado');
-      }
-      throw new Error(error.response?.data?.message || 'Erro ao cadastrar usuário');
-    }
+  async register(payload: RegisterPayload) {
+    const { data } = await api.post<AuthResponse>('/auth/register', payload);
+    await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data));
+    return data;
   },
-
-  // faz logout
-  async logout(): Promise<void> {
-    await clearAuthData();
+  async me() {
+    const { data } = await api.get<User>('/auth/me');
+    return data;
   },
-
-  // verifica se está autenticado
-  async isAuthenticated(): Promise<boolean> {
-    const { getAuthToken } = await import('@/services/api');
-    const token = await getAuthToken();
-    return !!token;
+  async getStoredSession() {
+    const raw = await AsyncStorage.getItem(AUTH_STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as AuthResponse) : null;
+  },
+  async logout() {
+    await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
   },
 };
-

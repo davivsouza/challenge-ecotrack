@@ -1,114 +1,159 @@
-# EcoTrack - Aplicativo de Consumo Sustentável 🌱
-Davi Vasconcelos Souza	559906
-Gustavo Dantas Oliveira	560685
-Paulo Neto	560262
-O **EcoTrack** é uma plataforma mobile que empodera consumidores a fazer escolhas de compra mais saudáveis e sustentáveis, centralizando informações de impacto ambiental e nutricional dos produtos em um único aplicativo.
+# EcoTrack 🌱
 
-## 📱 Funcionalidades
+Aplicativo mobile em React Native/Expo para ajudar consumidores a comparar produtos por saúde e sustentabilidade, com autenticação real, navegação por rotas, integração HTTP ponta a ponta e persistência de dados do usuário.
 
-- **Escaneamento de Produtos**: Escaneie códigos de barras para obter informações detalhadas
-- **Análise Nutricional**: Visualize dados nutricionais completos dos produtos
-- **Impacto Ambiental**: Consulte pegada de carbono, uso de água e tipo de embalagem
-- **Scores de Sustentabilidade**: Avaliações de saúde e sustentabilidade (0-100)
-- **Histórico de Consumo**: Armazene e visualize produtos escaneados anteriormente
-- **Alternativas Sustentáveis**: Sugestões de produtos mais ecológicos
-- **Exploração de Produtos**: Navegue por produtos disponíveis na base de dados
+## Problema escolhido
 
-## 🛠️ Tecnologias Utilizadas
+Consumidores geralmente não conseguem avaliar rapidamente se um produto industrializado é uma boa escolha do ponto de vista nutricional e ambiental. As informações ficam espalhadas em rótulos, bases externas e critérios difíceis de comparar no momento da compra.
 
-- **React Native** com **Expo Router** para navegação
-- **TypeScript** para tipagem estática
-- **AsyncStorage** para persistência de dados local
-- **Expo Camera** para funcionalidade de escaneamento
-- **React Navigation** para navegação entre telas
+## Solução proposta
 
-## 📦 Instalação e Configuração
+O **EcoTrack** centraliza esse fluxo em um app mobile com:
 
-### Pré-requisitos
+- login e sessão persistida;
+- busca de produtos por código de barras;
+- catálogo pesquisável;
+- detalhes completos de nutrição e impacto ambiental;
+- histórico de consultas com CRUD;
+- favoritos com CRUD;
+- notificação local ao concluir um escaneamento;
+- tela “Sobre o app” com versão e hash de commit.
 
-- Node.js (versão 18 ou superior)
-- pnpm (gerenciador de pacotes)
-- Expo CLI
-- Dispositivo móvel com Expo Go ou emulador
+> Observação: para esta entrega, a integração principal foi consolidada em um backend próprio em **Node.js + Express + TypeScript**, mantendo também o uso de fonte externa de produtos via **Open Food Facts** quando necessário.
 
-### Passos para Instalação
+## Tecnologias utilizadas
 
-1. **Clone o repositório**
-   ```bash
-   git clone <url-do-repositorio>
-   cd challenge-ecotrack
-   ```
+### Mobile
+- Expo
+- React Native
+- Expo Router
+- TanStack Query
+- Axios
+- AsyncStorage
+- Expo Notifications
+- TypeScript
 
-2. **Instale as dependências**
-   ```bash
-   pnpm install
-   ```
+### Backend
+- Node.js
+- Express
+- TypeScript
+- Zod
+- JSON Web Token (JWT)
 
-3. **Inicie o servidor de desenvolvimento**
-   ```bash
-   pnpm start
-   ```
+## Estrutura do projeto
 
-4. **Execute no dispositivo**
-   - **Android**: `pnpm android`
-   - **iOS**: `pnpm ios`
-   - **Web**: `pnpm web`
-
-## 🚀 Como Usar
-
-### Credenciais de Teste
-- **Email**: `usuario@ecotrack.com`
-- **Senha**: `123456`
-
-### Códigos de Barras de Teste
-- `7891234567890` - Açaí Bowl Orgânico
-- `7891234567891` - Smoothie de Frutas Vermelhas
-- `7891234567892` - Granola Artesanal
-- `7891234567893` - Refrigerante Zero Açúcar
-- `7891234567894` - Água de Coco Natural
-- `7891234567895` - Suco de Laranja Integral
-
-### Fluxo de Uso
-
-1. **Login**: Faça login com as credenciais de teste
-2. **Escanear**: Use a tela principal para escanear produtos ou digite códigos manualmente
-3. **Detalhes**: Visualize informações completas do produto
-4. **Histórico**: Acesse produtos escaneados anteriormente
-5. **Explorar**: Navegue por produtos disponíveis na base de dados
-
-## 🎨 Design e UX
-
-- **Interface Limpa**: Design moderno e intuitivo
-- **Cores Sustentáveis**: Paleta de cores inspirada na natureza
-- **Feedback Visual**: Indicadores de carregamento e estados
-- **Navegação Intuitiva**: Fluxo de usuário otimizado
-- **Responsividade**: Adaptado para diferentes tamanhos de tela
-
-## 📊 Dados dos Produtos
-
-Cada produto contém:
-
-### Informações Nutricionais
-- Calorias, proteínas, carboidratos, gorduras
-- Açúcar, sódio, fibras
-
-### Impacto Ambiental
-- Pegada de carbono (kg CO₂)
-- Uso de água (litros)
-- Tipo de embalagem
-- Score de sustentabilidade
-
-### Avaliações
-- Score de saúde (0-100)
-- Score de sustentabilidade (0-100)
-- Alternativas sugeridas
-
-## 🔧 Scripts Disponíveis
-
-```bash
-# Iniciar servidor de desenvolvimento
-pnpm start
+```text
+app/                rotas e telas do Expo Router
+hooks/              hooks de consulta/mutação com TanStack Query
+providers/          providers globais, incluindo autenticação
+services/           camada de acesso à API
+backend/            API Node/Express/TypeScript usada pelo app
+config/             configuração centralizada
+lib/                utilitários globais (ex.: QueryClient)
 ```
 
+## Requisitos atendidos da Sprint 3
 
-**EcoTrack** - Fazendo escolhas sustentáveis mais fáceis! 🌍✨
+- **Navegação real por rotas** com Expo Router.
+- **6+ telas distintas**: login, escanear, catálogo, histórico, favoritos, perfil, sobre, detalhe do produto.
+- **Integração HTTP real** com backend próprio.
+- **TanStack Query** para leitura e mutação.
+- **Autenticação real** com login, cadastro, rotas protegidas e persistência de sessão.
+- **CRUD completo em duas funcionalidades**:
+  - histórico: create, read, update, delete;
+  - favoritos: create, read, update, delete.
+- **Estados de carregamento e sincronização automática** após mutações.
+- **Tema automático** via `userInterfaceStyle: automatic` no Expo e uso do tema do React Navigation.
+
+## Requisitos atendidos da Sprint 4
+
+- Continuidade do fluxo principal do app.
+- Tela **Sobre o app** com identificação da versão/commit.
+- **Notificação local** ao salvar um produto escaneado no histórico.
+- Arquitetura mais organizada, separando UI, hooks, providers e serviços.
+
+## Como executar
+
+### 1) Instalar dependências do app
+
+```bash
+npm install
+```
+
+### 2) Instalar dependências do backend
+
+```bash
+npm run backend:install
+```
+
+### 3) Subir o backend
+
+```bash
+npm run backend:dev
+```
+
+O backend sobe por padrão em `http://localhost:3333`.
+
+### 4) Configurar variáveis do app
+
+Crie um arquivo `.env` na raiz com:
+
+```env
+EXPO_PUBLIC_API_URL=http://127.0.0.1:3333
+EXPO_PUBLIC_APP_COMMIT=dev-build
+```
+
+> Em dispositivo físico, substitua `127.0.0.1` pelo IP da máquina na rede local.
+
+### 5) Executar o app
+
+```bash
+npm start
+```
+
+Atalhos úteis:
+
+```bash
+npm run android
+npm run ios
+npm run web
+```
+
+## Credenciais de teste
+
+```text
+Email: demo@ecotrack.com
+Senha: 123456
+```
+
+## Fluxo recomendado para demonstração em vídeo
+
+1. Fazer login com a conta demo.
+2. Ir para **Escanear** e consultar um código de barras.
+3. Mostrar a notificação local após salvar o item.
+4. Abrir o detalhe do produto.
+5. Adicionar o produto aos favoritos.
+6. Ir para **Histórico** e editar/remover uma anotação.
+7. Ir para **Favoritos** e editar/remover uma observação.
+8. Abrir **Perfil > Sobre o app** e mostrar a versão/hash.
+
+## Endpoints principais do backend
+
+- `POST /auth/register`
+- `POST /auth/login`
+- `GET /auth/me`
+- `GET /products`
+- `GET /products/:id`
+- `GET /products/barcode/:barcode`
+- `GET /history`
+- `POST /history`
+- `PATCH /history/:id`
+- `DELETE /history/:id`
+- `GET /favorites`
+- `POST /favorites`
+- `PATCH /favorites/:id`
+- `DELETE /favorites/:id`
+
+## Observação sobre publicação
+
+Para publicação final, configure `EXPO_PUBLIC_APP_COMMIT` com o hash real do commit enviado ao professor e use esse mesmo commit como referência da build distribuída.
