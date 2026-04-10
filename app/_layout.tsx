@@ -16,7 +16,7 @@ export default function RootLayout() {
       <AuthProvider>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <RootNavigator />
-          <StatusBar style="auto" />
+          <StatusBar style="dark" backgroundColor="#FFFFFF" />
         </ThemeProvider>
       </AuthProvider>
     </QueryClientProvider>

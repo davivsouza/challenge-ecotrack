@@ -6,7 +6,11 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "challengeecotrack",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
+    "androidNavigationBar": {
+      "backgroundColor": "#FFFFFF",
+      "barStyle": "dark-content"
+    },
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
