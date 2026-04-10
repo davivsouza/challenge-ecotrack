@@ -19,7 +19,7 @@ O **EcoTrack** centraliza esse fluxo em um app mobile com:
 - notificação local ao concluir um escaneamento;
 - tela “Sobre o app” com versão e hash de commit.
 
-> Observação: para esta entrega, a integração principal foi consolidada em um backend próprio em **Node.js + Express + TypeScript**, mantendo também o uso de fonte externa de produtos via **Open Food Facts** quando necessário.
+> Observação: o app está integrado ao backend **Java (Spring Boot)** do projeto, incluindo autenticação JWT, produtos, histórico e favoritos.
 
 ## Tecnologias utilizadas
 
@@ -34,10 +34,11 @@ O **EcoTrack** centraliza esse fluxo em um app mobile com:
 - TypeScript
 
 ### Backend
-- Node.js
-- Express
-- TypeScript
-- Zod
+- Java
+- Spring Boot
+- Spring Security (JWT)
+- Spring Data JPA
+- Oracle Database
 - JSON Web Token (JWT)
 
 ## Estrutura do projeto
@@ -47,7 +48,6 @@ app/                rotas e telas do Expo Router
 hooks/              hooks de consulta/mutação com TanStack Query
 providers/          providers globais, incluindo autenticação
 services/           camada de acesso à API
-backend/            API Node/Express/TypeScript usada pelo app
 config/             configuração centralizada
 lib/                utilitários globais (ex.: QueryClient)
 ```
@@ -56,7 +56,7 @@ lib/                utilitários globais (ex.: QueryClient)
 
 - **Navegação real por rotas** com Expo Router.
 - **6+ telas distintas**: login, escanear, catálogo, histórico, favoritos, perfil, sobre, detalhe do produto.
-- **Integração HTTP real** com backend próprio.
+- **Integração HTTP real** com backend Java.
 - **TanStack Query** para leitura e mutação.
 - **Autenticação real** com login, cadastro, rotas protegidas e persistência de sessão.
 - **CRUD completo em duas funcionalidades**:
@@ -80,32 +80,27 @@ lib/                utilitários globais (ex.: QueryClient)
 npm install
 ```
 
-### 2) Instalar dependências do backend
+### 2) Subir backend Java
 
 ```bash
-npm run backend:install
+cd ../ecotrack-oracle-api-full
+mvn spring-boot:run
 ```
 
-### 3) Subir o backend
+O backend Java sobe por padrão em `http://localhost:8080`.
 
-```bash
-npm run backend:dev
-```
-
-O backend sobe por padrão em `http://localhost:3333`.
-
-### 4) Configurar variáveis do app
+### 3) Configurar variáveis do app
 
 Crie um arquivo `.env` na raiz com:
 
 ```env
-EXPO_PUBLIC_API_URL=http://127.0.0.1:3333
+EXPO_PUBLIC_API_URL=http://127.0.0.1:8080
 EXPO_PUBLIC_APP_COMMIT=dev-build
 ```
 
 > Em dispositivo físico, substitua `127.0.0.1` pelo IP da máquina na rede local.
 
-### 5) Executar o app
+### 4) Executar o app
 
 ```bash
 npm start
@@ -122,13 +117,12 @@ npm run web
 ## Credenciais de teste
 
 ```text
-Email: demo@ecotrack.com
-Senha: 123456
+Use um usuário registrado via tela de cadastro do app (POST /auth/register).
 ```
 
 ## Fluxo recomendado para demonstração em vídeo
 
-1. Fazer login com a conta demo.
+1. Fazer cadastro e login com uma conta real.
 2. Ir para **Escanear** e consultar um código de barras.
 3. Mostrar a notificação local após salvar o item.
 4. Abrir o detalhe do produto.
@@ -153,6 +147,10 @@ Senha: 123456
 - `POST /favorites`
 - `PATCH /favorites/:id`
 - `DELETE /favorites/:id`
+
+## Documentação de integração Java
+
+- `../ecotrack-oracle-api-full/documentos/INTEGRACAO_FRONTEND_BACKEND_JAVA.md`
 
 ## Observação sobre publicação
 

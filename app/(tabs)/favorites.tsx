@@ -13,7 +13,6 @@ export default function FavoritesScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.container}>
         <Text style={styles.title}>Favoritos</Text>
-        <Text style={styles.subtitle}>Segunda funcionalidade com CRUD completo integrado pela API.</Text>
         <FlatList
           data={data ?? []}
           keyExtractor={(item) => item.id}

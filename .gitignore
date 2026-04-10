@@ -43,3 +43,7 @@ app-example
 /android
 
 AGENTS.md
+
+.env
+.env.local
+.env.prod

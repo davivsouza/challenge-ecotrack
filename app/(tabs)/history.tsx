@@ -24,7 +24,6 @@ export default function HistoryScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.container}>
         <Text style={styles.title}>Histórico</Text>
-        <Text style={styles.subtitle}>CRUD real da funcionalidade de histórico: leitura, criação pelo scan, atualização de anotação e remoção.</Text>
         <FlatList
           data={data ?? []}
           onRefresh={refetch}

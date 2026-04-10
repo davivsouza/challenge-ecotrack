@@ -26,7 +26,7 @@ export default function ScanScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Escanear produto</Text>
-        <Text style={styles.subtitle}>Nesta sprint o fluxo é real: busca HTTP, gravação no histórico pela API e atualização automática via TanStack Query.</Text>
+    
 
         <View style={styles.card}>
           <Text style={styles.label}>Código de barras</Text>
