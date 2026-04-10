@@ -28,14 +28,14 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#f5f7f6' },
+  safeArea: { flex: 1, backgroundColor: '#F8FAFC' },
   container: { flex: 1, padding: 20, gap: 14 },
-  title: { fontSize: 28, fontWeight: '700', color: '#163d2e' },
+  title: { fontSize: 28, fontWeight: '700', color: '#1E3A8A' },
   card: { backgroundColor: '#fff', borderRadius: 20, padding: 20, gap: 8 },
-  name: { fontSize: 18, fontWeight: '700', color: '#163d2e' },
-  email: { color: '#52625a' },
-  secondaryButton: { borderWidth: 1, borderColor: '#1D7C4D', borderRadius: 14, paddingVertical: 14, alignItems: 'center' },
-  secondaryText: { color: '#1D7C4D', fontWeight: '700' },
-  primaryButton: { backgroundColor: '#1D7C4D', borderRadius: 14, paddingVertical: 14, alignItems: 'center' },
+  name: { fontSize: 18, fontWeight: '700', color: '#1E3A8A' },
+  email: { color: '#64748B' },
+  secondaryButton: { borderWidth: 1, borderColor: '#2563EB', borderRadius: 14, paddingVertical: 14, alignItems: 'center' },
+  secondaryText: { color: '#2563EB', fontWeight: '700' },
+  primaryButton: { backgroundColor: '#2563EB', borderRadius: 14, paddingVertical: 14, alignItems: 'center' },
   primaryText: { color: '#fff', fontWeight: '700' },
 });

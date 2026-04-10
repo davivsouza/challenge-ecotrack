@@ -14,7 +14,7 @@ export default function ExploreScreen() {
       <View style={styles.container}>
         <Text style={styles.title}>Catálogo</Text>
         <TextInput value={search} onChangeText={setSearch} placeholder="Buscar por nome, marca ou categoria" style={styles.input} />
-        {isLoading ? <ActivityIndicator size="large" color="#1D7C4D" /> : null}
+        {isLoading ? <ActivityIndicator size="large" color="#2563EB" /> : null}
         <FlatList
           data={data ?? []}
           onRefresh={refetch}
@@ -35,13 +35,13 @@ export default function ExploreScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#f5f7f6' },
+  safeArea: { flex: 1, backgroundColor: '#F8FAFC' },
   container: { flex: 1, padding: 20, gap: 12 },
-  title: { fontSize: 28, fontWeight: '700', color: '#163d2e' },
-  input: { borderWidth: 1, borderColor: '#cfdad4', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 14, backgroundColor: '#fff' },
+  title: { fontSize: 28, fontWeight: '700', color: '#1E3A8A' },
+  input: { borderWidth: 1, borderColor: '#D7E2F0', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 14, backgroundColor: '#fff' },
   card: { backgroundColor: '#fff', borderRadius: 18, padding: 18, marginBottom: 12 },
-  name: { fontWeight: '700', fontSize: 16, color: '#163d2e' },
-  brand: { color: '#52625a', marginTop: 4 },
-  meta: { marginTop: 8, color: '#1D7C4D', fontWeight: '600' },
-  empty: { textAlign: 'center', color: '#52625a', marginTop: 32 },
+  name: { fontWeight: '700', fontSize: 16, color: '#1E3A8A' },
+  brand: { color: '#64748B', marginTop: 4 },
+  meta: { marginTop: 8, color: '#2563EB', fontWeight: '600' },
+  empty: { textAlign: 'center', color: '#64748B', marginTop: 32 },
 });

@@ -41,18 +41,18 @@ export default function FavoritesScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#f5f7f6' },
+  safeArea: { flex: 1, backgroundColor: '#F8FAFC' },
   container: { flex: 1, padding: 20 },
-  title: { fontSize: 28, fontWeight: '700', color: '#163d2e' },
-  subtitle: { color: '#52625a', lineHeight: 22, marginVertical: 10 },
+  title: { fontSize: 28, fontWeight: '700', color: '#1E3A8A' },
+  subtitle: { color: '#64748B', lineHeight: 22, marginVertical: 10 },
   card: { backgroundColor: '#fff', borderRadius: 18, padding: 18, marginBottom: 12, gap: 8 },
-  name: { fontWeight: '700', color: '#163d2e' },
-  meta: { color: '#52625a' },
-  note: { color: '#163d2e' },
+  name: { fontWeight: '700', color: '#1E3A8A' },
+  meta: { color: '#64748B' },
+  note: { color: '#1E3A8A' },
   row: { flexDirection: 'row', gap: 10, marginTop: 8 },
-  secondaryButton: { flex: 1, borderWidth: 1, borderColor: '#1D7C4D', borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
-  secondaryText: { color: '#1D7C4D', fontWeight: '700' },
+  secondaryButton: { flex: 1, borderWidth: 1, borderColor: '#2563EB', borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
+  secondaryText: { color: '#2563EB', fontWeight: '700' },
   dangerButton: { flex: 1, backgroundColor: '#c03b34', borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
   primaryText: { color: '#fff', fontWeight: '700' },
-  empty: { marginTop: 32, textAlign: 'center', color: '#52625a' },
+  empty: { marginTop: 32, textAlign: 'center', color: '#64748B' },
 });

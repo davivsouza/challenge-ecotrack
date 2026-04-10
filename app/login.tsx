@@ -68,16 +68,16 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#F3F7F4' },
+  safeArea: { flex: 1, backgroundColor: '#E6F4FE' },
   container: { flex: 1, justifyContent: 'center', padding: 24 },
   card: { backgroundColor: '#fff', borderRadius: 24, padding: 24, gap: 14, elevation: 3 },
-  title: { fontSize: 32, fontWeight: '700', color: '#123524' },
-  subtitle: { fontSize: 15, lineHeight: 22, color: '#52625a' },
-  input: { borderWidth: 1, borderColor: '#d4dfd8', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 14, fontSize: 16 },
-  primaryButton: { backgroundColor: '#1D7C4D', borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
+  title: { fontSize: 32, fontWeight: '700', color: '#1E3A8A' },
+  subtitle: { fontSize: 15, lineHeight: 22, color: '#64748B' },
+  input: { borderWidth: 1, borderColor: '#D7E2F0', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 14, fontSize: 16 },
+  primaryButton: { backgroundColor: '#2563EB', borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
   primaryText: { color: '#fff', fontWeight: '700', fontSize: 16 },
-  switchText: { textAlign: 'center', color: '#1D7C4D', fontWeight: '600' },
-  demoBox: { backgroundColor: '#eef7f1', padding: 16, borderRadius: 16, gap: 4 },
-  demoTitle: { fontWeight: '700', color: '#123524' },
-  demoText: { color: '#52625a' },
+  switchText: { textAlign: 'center', color: '#2563EB', fontWeight: '600' },
+  demoBox: { backgroundColor: '#E6F4FE', padding: 16, borderRadius: 16, gap: 4 },
+  demoTitle: { fontWeight: '700', color: '#1E3A8A' },
+  demoText: { color: '#64748B' },
 });

@@ -12,7 +12,7 @@ export default function ProductDetailsScreen() {
   const createFavorite = useCreateFavorite();
 
   if (isLoading) {
-    return <SafeAreaView style={styles.safeArea}><View style={styles.center}><ActivityIndicator size="large" color="#1D7C4D" /></View></SafeAreaView>;
+    return <SafeAreaView style={styles.safeArea}><View style={styles.center}><ActivityIndicator size="large" color="#2563EB" /></View></SafeAreaView>;
   }
 
   if (!product) {
@@ -79,21 +79,21 @@ export default function ProductDetailsScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#f5f7f6' },
+  safeArea: { flex: 1, backgroundColor: '#F8FAFC' },
   container: { padding: 20, gap: 14 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  back: { color: '#1D7C4D', fontWeight: '700' },
+  back: { color: '#2563EB', fontWeight: '700' },
   image: { width: '100%', height: 220, borderRadius: 20, backgroundColor: '#ddd' },
-  title: { fontSize: 26, fontWeight: '700', color: '#163d2e' },
-  subtitle: { color: '#52625a' },
+  title: { fontSize: 26, fontWeight: '700', color: '#1E3A8A' },
+  subtitle: { color: '#64748B' },
   scoreRow: { flexDirection: 'row', gap: 12 },
   scoreCard: { flex: 1, backgroundColor: '#fff', borderRadius: 18, padding: 18, alignItems: 'center' },
-  scoreLabel: { color: '#52625a' },
-  scoreValue: { fontSize: 28, fontWeight: '700', color: '#1D7C4D' },
+  scoreLabel: { color: '#64748B' },
+  scoreValue: { fontSize: 28, fontWeight: '700', color: '#2563EB' },
   card: { backgroundColor: '#fff', borderRadius: 20, padding: 18, gap: 8 },
-  sectionTitle: { fontWeight: '700', color: '#163d2e' },
-  info: { color: '#52625a' },
-  button: { backgroundColor: '#1D7C4D', borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
-  buttonDisabled: { backgroundColor: '#6d8b7b' },
+  sectionTitle: { fontWeight: '700', color: '#1E3A8A' },
+  info: { color: '#64748B' },
+  button: { backgroundColor: '#2563EB', borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
+  buttonDisabled: { backgroundColor: '#94A3B8' },
   buttonText: { color: '#fff', fontWeight: '700' },
 });

@@ -24,11 +24,11 @@ export default function AboutScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#f5f7f6' },
+  safeArea: { flex: 1, backgroundColor: '#F8FAFC' },
   container: { flex: 1, padding: 20 },
-  title: { fontSize: 28, fontWeight: '700', color: '#163d2e', marginBottom: 16 },
+  title: { fontSize: 28, fontWeight: '700', color: '#1E3A8A', marginBottom: 16 },
   card: { backgroundColor: '#fff', borderRadius: 20, padding: 20, gap: 10 },
-  label: { fontWeight: '700', color: '#163d2e' },
-  value: { color: '#52625a' },
-  description: { marginTop: 8, color: '#52625a', lineHeight: 22 },
+  label: { fontWeight: '700', color: '#1E3A8A' },
+  value: { color: '#64748B' },
+  description: { marginTop: 8, color: '#64748B', lineHeight: 22 },
 });
