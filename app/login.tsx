@@ -40,7 +40,6 @@ export default function LoginScreen() {
       <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={styles.card}>
           <Text style={styles.title}>EcoTrack</Text>
-          <Text style={styles.subtitle}>Login real com persistência de sessão, navegação protegida e integração HTTP.</Text>
 
           {mode === 'register' ? (
             <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Nome" />

@@ -7,8 +7,8 @@ export interface Product {
   ingredients?: string;
   categories?: string[];
   nutriScore?: string | null;
-  dataSource?: 'api' | 'open_food_facts' | 'cache';
-  dataCompleteness?: 'complete' | 'partial';
+  dataSource?: 'api' | 'open_food_facts' | 'open-food-facts' | 'cache';
+  dataCompleteness?: number | 'complete' | 'partial';
   nutritionalInfo: {
     calories: number;
     protein: number;
@@ -19,11 +19,12 @@ export interface Product {
     fiber: number;
   };
   environmentalImpact: {
-    carbonFootprint: number;
-    waterUsage: number;
-    packagingType: 'reciclável' | 'biodegradável' | 'plástico' | 'vidro' | 'papel';
+    carbonFootprint: number | null;
+    waterUsage: number | null;
+    packagingType: string;
     sustainabilityScore: number;
     ecoScoreGrade?: string | null;
+    environmentalImpactLevel?: 'BAIXO' | 'MEDIO' | 'ALTO' | 'DESCONHECIDO' | null;
   };
   healthScore: number;
   sustainabilityScore: number;

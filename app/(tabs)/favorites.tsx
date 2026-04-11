@@ -1,4 +1,5 @@
 import React from 'react';
+import { router } from 'expo-router';
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -8,6 +9,10 @@ export default function FavoritesScreen() {
   const { data, isLoading, refetch, isRefetching } = useFavorites();
   const updateFavorite = useUpdateFavorite();
   const deleteFavorite = useDeleteFavorite();
+
+  const handleOpenDetails = (productId: string) => {
+    router.push(`/product/${productId}`);
+  };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -23,9 +28,12 @@ export default function FavoritesScreen() {
               <Text style={styles.name}>{item.product?.name ?? 'Produto indisponível'}</Text>
               <Text style={styles.meta}>{item.product?.brand ?? ''}</Text>
               <Text style={styles.note}>{item.note || 'Sem observação.'}</Text>
+              <Pressable style={styles.primaryButton} onPress={() => handleOpenDetails(item.productId)}>
+                <Text style={styles.primaryText}>Ver detalhes do produto</Text>
+              </Pressable>
               <View style={styles.row}>
                 <Pressable style={styles.secondaryButton} onPress={() => void updateFavorite.mutateAsync({ id: item.id, note: item.note ? '' : 'Quero comprar novamente.' })}>
-                  <Text style={styles.secondaryText}>{item.note ? 'Limpar nota' : 'Salvar nota'}</Text>
+                  <Text style={styles.secondaryText}>{item.note ? 'Limpar nota' : 'Adicionar nota'}</Text>
                 </Pressable>
                 <Pressable style={styles.dangerButton} onPress={() => Alert.alert('Remover favorito', 'Deseja remover este favorito?', [{ text: 'Cancelar', style: 'cancel' }, { text: 'Remover', style: 'destructive', onPress: () => void deleteFavorite.mutateAsync(item.id) }])}>
                   <Text style={styles.primaryText}>Remover</Text>
@@ -50,6 +58,7 @@ const styles = StyleSheet.create({
   meta: { color: '#64748B' },
   note: { color: '#1E3A8A' },
   row: { flexDirection: 'row', gap: 10, marginTop: 8 },
+  primaryButton: { backgroundColor: '#2563EB', borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
   secondaryButton: { flex: 1, borderWidth: 1, borderColor: '#2563EB', borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
   secondaryText: { color: '#2563EB', fontWeight: '700' },
   dangerButton: { flex: 1, backgroundColor: '#c03b34', borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
