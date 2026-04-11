@@ -114,22 +114,6 @@ npm run ios
 npm run web
 ```
 
-## Credenciais de teste
-
-```text
-Use um usuário registrado via tela de cadastro do app (POST /auth/register).
-```
-
-## Fluxo recomendado para demonstração em vídeo
-
-1. Fazer cadastro e login com uma conta real.
-2. Ir para **Escanear** e consultar um código de barras.
-3. Mostrar a notificação local após salvar o item.
-4. Abrir o detalhe do produto.
-5. Adicionar o produto aos favoritos.
-6. Ir para **Histórico** e editar/remover uma anotação.
-7. Ir para **Favoritos** e editar/remover uma observação.
-8. Abrir **Perfil > Sobre o app** e mostrar a versão/hash.
 
 ## Endpoints principais do backend
 
@@ -148,10 +132,3 @@ Use um usuário registrado via tela de cadastro do app (POST /auth/register).
 - `PATCH /favorites/:id`
 - `DELETE /favorites/:id`
 
-## Documentação de integração Java
-
-- `../ecotrack-oracle-api-full/documentos/INTEGRACAO_FRONTEND_BACKEND_JAVA.md`
-
-## Observação sobre publicação
-
-Para publicação final, configure `EXPO_PUBLIC_APP_COMMIT` com o hash real do commit enviado ao professor e use esse mesmo commit como referência da build distribuída.
