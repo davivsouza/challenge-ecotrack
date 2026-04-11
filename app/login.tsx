@@ -1,8 +1,9 @@
 import { Redirect } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { BrandColors } from '@/constants/theme';
 import { useAuth } from '@/providers/auth-provider';
 
 export default function LoginScreen() {
@@ -38,14 +39,36 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <View style={styles.brandContainer}>
+          <Image source={require('../assets/images/logo-ecotrack.png')} style={styles.logo} resizeMode="contain" />
+          <Text style={styles.brandText}>Saúde e Sustentabilidade</Text>
+        </View>
+
         <View style={styles.card}>
-          <Text style={styles.title}>EcoTrack</Text>
+          <Text style={styles.title}>{mode === 'login' ? 'Acesse sua conta' : 'Crie sua conta'}</Text>
+          <Text style={styles.subtitle}>Acompanhe o impacto dos produtos que você consome.</Text>
 
           {mode === 'register' ? (
-            <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Nome" />
+            <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Nome" placeholderTextColor={BrandColors.textSecondary} />
           ) : null}
-          <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="Email" autoCapitalize="none" keyboardType="email-address" />
-          <TextInput style={styles.input} value={password} onChangeText={setPassword} placeholder="Senha" autoCapitalize="none" secureTextEntry />
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Email"
+            placeholderTextColor={BrandColors.textSecondary}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Senha"
+            placeholderTextColor={BrandColors.textSecondary}
+            autoCapitalize="none"
+            secureTextEntry
+          />
 
           <Pressable style={styles.primaryButton} onPress={handleSubmit} disabled={submitting}>
             <Text style={styles.primaryText}>{submitting ? 'Carregando...' : mode === 'login' ? 'Entrar' : 'Criar conta'}</Text>
@@ -61,13 +84,33 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#E6F4FE' },
-  container: { flex: 1, justifyContent: 'center', padding: 24 },
-  card: { backgroundColor: '#fff', borderRadius: 24, padding: 24, gap: 14, elevation: 3 },
-  title: { fontSize: 32, fontWeight: '700', color: '#1E3A8A' },
-  subtitle: { fontSize: 15, lineHeight: 22, color: '#64748B' },
-  input: { borderWidth: 1, borderColor: '#D7E2F0', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 14, fontSize: 16 },
-  primaryButton: { backgroundColor: '#2563EB', borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
-  primaryText: { color: '#fff', fontWeight: '700', fontSize: 16 },
-  switchText: { textAlign: 'center', color: '#2563EB', fontWeight: '600' },
+  safeArea: { flex: 1, backgroundColor: BrandColors.background },
+  container: { flex: 1, justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 12 },
+  brandContainer: { alignItems: 'center', marginBottom: 20 },
+  logo: { width: 220, height: 170 },
+  brandText: { fontSize: 16, color: BrandColors.darkGreen, fontWeight: '600' },
+  card: {
+    backgroundColor: BrandColors.surface,
+    borderRadius: 24,
+    padding: 24,
+    gap: 14,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: BrandColors.border,
+  },
+  title: { fontSize: 29, fontWeight: '700', color: BrandColors.darkBlue },
+  subtitle: { fontSize: 15, lineHeight: 22, color: BrandColors.textSecondary, marginBottom: 2 },
+  input: {
+    borderWidth: 1,
+    borderColor: BrandColors.border,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: BrandColors.textPrimary,
+    backgroundColor: BrandColors.surface,
+  },
+  primaryButton: { backgroundColor: BrandColors.primaryGreen, borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
+  primaryText: { color: BrandColors.surface, fontWeight: '700', fontSize: 16 },
+  switchText: { textAlign: 'center', color: BrandColors.primaryBlue, fontWeight: '600' },
 });

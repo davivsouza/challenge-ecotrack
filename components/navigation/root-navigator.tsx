@@ -1,5 +1,6 @@
 import { Redirect, Stack, useSegments } from 'expo-router';
 
+import { BrandColors } from '@/constants/theme';
 import { useAuth } from '@/providers/auth-provider';
 
 export function RootNavigator() {
@@ -18,9 +19,9 @@ export function RootNavigator() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: '#FFFFFF' },
-        headerTintColor: '#1E3A8A',
-        headerTitleStyle: { color: '#1E3A8A', fontWeight: '700' },
+        headerStyle: { backgroundColor: BrandColors.surface },
+        headerTintColor: BrandColors.darkBlue,
+        headerTitleStyle: { color: BrandColors.darkBlue, fontWeight: '700' },
         headerBackButtonDisplayMode: 'minimal',
       }}
     >
