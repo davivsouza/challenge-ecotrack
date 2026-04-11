@@ -9,8 +9,8 @@ export default function LoginScreen() {
   const { signIn, signUp, user, isLoading } = useAuth();
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('demo@ecotrack.com');
-  const [password, setPassword] = useState('123456');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   if (!isLoading && user) return <Redirect href="/(tabs)" />;
@@ -55,12 +55,6 @@ export default function LoginScreen() {
           <Pressable onPress={() => setMode((current) => (current === 'login' ? 'register' : 'login'))}>
             <Text style={styles.switchText}>{mode === 'login' ? 'Ainda não tem conta? Cadastre-se.' : 'Já possui conta? Faça login.'}</Text>
           </Pressable>
-
-          <View style={styles.demoBox}>
-            <Text style={styles.demoTitle}>Conta pronta para testes</Text>
-            <Text style={styles.demoText}>Email: demo@ecotrack.com</Text>
-            <Text style={styles.demoText}>Senha: 123456</Text>
-          </View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -77,7 +71,4 @@ const styles = StyleSheet.create({
   primaryButton: { backgroundColor: '#2563EB', borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
   primaryText: { color: '#fff', fontWeight: '700', fontSize: 16 },
   switchText: { textAlign: 'center', color: '#2563EB', fontWeight: '600' },
-  demoBox: { backgroundColor: '#E6F4FE', padding: 16, borderRadius: 16, gap: 4 },
-  demoTitle: { fontWeight: '700', color: '#1E3A8A' },
-  demoText: { color: '#64748B' },
 });
