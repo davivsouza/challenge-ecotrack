@@ -1,8 +1,9 @@
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ScreenContainer } from '@/components/layout/screen-container';
 import { useProducts } from '@/hooks/useProducts';
 
 export default function ExploreScreen() {
@@ -11,7 +12,7 @@ export default function ExploreScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <View style={styles.container}>
+      <ScreenContainer style={styles.container}>
         <Text style={styles.title}>Catálogo</Text>
         <TextInput value={search} onChangeText={setSearch} placeholder="Buscar por nome, marca ou categoria" style={styles.input} />
         {isLoading ? <ActivityIndicator size="large" color="#2563EB" /> : null}
@@ -29,7 +30,7 @@ export default function ExploreScreen() {
           )}
           ListEmptyComponent={<Text style={styles.empty}>Nenhum produto encontrado.</Text>}
         />
-      </View>
+      </ScreenContainer>
     </SafeAreaView>
   );
 }

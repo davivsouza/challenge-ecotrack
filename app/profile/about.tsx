@@ -3,13 +3,15 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ScreenContainer } from '@/components/layout/screen-container';
+
 export default function AboutScreen() {
   const version = Constants.expoConfig?.version ?? '1.0.0';
   const commitHash = process.env.EXPO_PUBLIC_APP_COMMIT ?? 'dev-build';
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+      <ScreenContainer style={styles.container}>
         <Text style={styles.title}>Sobre o app</Text>
         <View style={styles.card}>
           <Text style={styles.label}>Versão</Text>
@@ -18,7 +20,7 @@ export default function AboutScreen() {
           <Text style={styles.value}>{commitHash}</Text>
           <Text style={styles.description}>Esta tela atende ao requisito da Sprint 4 de identificação explícita da versão publicada.</Text>
         </View>
-      </View>
+      </ScreenContainer>
     </SafeAreaView>
   );
 }

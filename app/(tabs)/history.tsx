@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ScreenContainer } from '@/components/layout/screen-container';
 import { useDeleteHistory, useHistory, useUpdateHistory } from '@/hooks/useProducts';
 
 export default function HistoryScreen() {
@@ -27,7 +28,7 @@ export default function HistoryScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <View style={styles.container}>
+      <ScreenContainer style={styles.container}>
         <Text style={styles.title}>Histórico</Text>
         <FlatList
           data={data ?? []}
@@ -55,7 +56,7 @@ export default function HistoryScreen() {
           )}
           ListEmptyComponent={<Text style={styles.empty}>{isLoading ? 'Carregando...' : 'Nenhum item no histórico.'}</Text>}
         />
-      </View>
+      </ScreenContainer>
     </SafeAreaView>
   );
 }

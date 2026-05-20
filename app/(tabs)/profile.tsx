@@ -3,6 +3,7 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ScreenContainer } from '@/components/layout/screen-container';
 import { useAuth } from '@/providers/auth-provider';
 
 export default function ProfileScreen() {
@@ -10,7 +11,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <View style={styles.container}>
+      <ScreenContainer style={styles.container}>
         <Text style={styles.title}>Perfil</Text>
         <View style={styles.card}>
           <Text style={styles.name}>{user?.name}</Text>
@@ -22,7 +23,7 @@ export default function ProfileScreen() {
         <Pressable style={styles.primaryButton} onPress={() => void signOut()}>
           <Text style={styles.primaryText}>Sair</Text>
         </Pressable>
-      </View>
+      </ScreenContainer>
     </SafeAreaView>
   );
 }

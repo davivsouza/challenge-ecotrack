@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Alert, Image, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ScreenContainer } from '@/components/layout/screen-container';
 import { BrandColors } from '@/constants/theme';
 import { useAuth } from '@/providers/auth-provider';
 
@@ -38,47 +39,49 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <View style={styles.brandContainer}>
-          <Image source={require('../assets/images/logo-ecotrack.png')} style={styles.logo} resizeMode="contain" />
-          <Text style={styles.brandText}>Saúde e Sustentabilidade</Text>
-        </View>
+      <ScreenContainer>
+        <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          <View style={styles.brandContainer}>
+            <Image source={require('../assets/images/logo-ecotrack.png')} style={styles.logo} resizeMode="contain" />
+            <Text style={styles.brandText}>Saúde e Sustentabilidade</Text>
+          </View>
 
-        <View style={styles.card}>
-          <Text style={styles.title}>{mode === 'login' ? 'Acesse sua conta' : 'Crie sua conta'}</Text>
-          <Text style={styles.subtitle}>Acompanhe o impacto dos produtos que você consome.</Text>
+          <View style={styles.card}>
+            <Text style={styles.title}>{mode === 'login' ? 'Acesse sua conta' : 'Crie sua conta'}</Text>
+            <Text style={styles.subtitle}>Acompanhe o impacto dos produtos que você consome.</Text>
 
-          {mode === 'register' ? (
-            <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Nome" placeholderTextColor={BrandColors.textSecondary} />
-          ) : null}
-          <TextInput
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Email"
-            placeholderTextColor={BrandColors.textSecondary}
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
-          <TextInput
-            style={styles.input}
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Senha"
-            placeholderTextColor={BrandColors.textSecondary}
-            autoCapitalize="none"
-            secureTextEntry
-          />
+            {mode === 'register' ? (
+              <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Nome" placeholderTextColor={BrandColors.textSecondary} />
+            ) : null}
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              placeholder="Email"
+              placeholderTextColor={BrandColors.textSecondary}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+            <TextInput
+              style={styles.input}
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Senha"
+              placeholderTextColor={BrandColors.textSecondary}
+              autoCapitalize="none"
+              secureTextEntry
+            />
 
-          <Pressable style={styles.primaryButton} onPress={handleSubmit} disabled={submitting}>
-            <Text style={styles.primaryText}>{submitting ? 'Carregando...' : mode === 'login' ? 'Entrar' : 'Criar conta'}</Text>
-          </Pressable>
+            <Pressable style={styles.primaryButton} onPress={handleSubmit} disabled={submitting}>
+              <Text style={styles.primaryText}>{submitting ? 'Carregando...' : mode === 'login' ? 'Entrar' : 'Criar conta'}</Text>
+            </Pressable>
 
-          <Pressable onPress={() => setMode((current) => (current === 'login' ? 'register' : 'login'))}>
-            <Text style={styles.switchText}>{mode === 'login' ? 'Ainda não tem conta? Cadastre-se.' : 'Já possui conta? Faça login.'}</Text>
-          </Pressable>
-        </View>
-      </KeyboardAvoidingView>
+            <Pressable onPress={() => setMode((current) => (current === 'login' ? 'register' : 'login'))}>
+              <Text style={styles.switchText}>{mode === 'login' ? 'Ainda não tem conta? Cadastre-se.' : 'Já possui conta? Faça login.'}</Text>
+            </Pressable>
+          </View>
+        </KeyboardAvoidingView>
+      </ScreenContainer>
     </SafeAreaView>
   );
 }

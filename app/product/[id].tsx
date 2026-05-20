@@ -4,6 +4,7 @@ import React from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ScreenContainer } from '@/components/layout/screen-container';
 import { useCreateFavorite, useFavorites, useProduct } from '@/hooks/useProducts';
 
 type ImpactLevel = 'BAIXO' | 'MEDIO' | 'ALTO' | 'DESCONHECIDO';
@@ -70,71 +71,73 @@ export default function ProductDetailsScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Image source={{ uri: product.image }} style={styles.image} />
-        <Text style={styles.title}>{product.name}</Text>
-        <Text style={styles.subtitle}>{product.brand}</Text>
+        <ScreenContainer style={styles.contentWidth}>
+          <Image source={{ uri: product.image }} style={styles.image} />
+          <Text style={styles.title}>{product.name}</Text>
+          <Text style={styles.subtitle}>{product.brand}</Text>
 
-        <View style={styles.scoreRow}>
-          <View style={styles.scoreCard}><Text style={styles.scoreLabel}>Saúde</Text><Text style={styles.scoreValue}>{product.healthScore}</Text></View>
-          <View style={styles.scoreCard}><Text style={styles.scoreLabel}>Sustentabilidade</Text><Text style={styles.scoreValue}>{product.sustainabilityScore}</Text></View>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Informações do produto</Text>
-          <Text style={styles.info}>Código: {product.barcode}</Text>
-          <Text style={styles.info}>Categorias: {product.categories?.join(', ') || 'Não informado'}</Text>
-          <Text style={styles.info}>Nutri-Score: {product.nutriScore || 'N/A'}</Text>
-          <Text style={styles.info}>Fonte: {formatDataSource(product.dataSource)}</Text>
-          <Text style={styles.info}>
-            Integridade dos dados: {typeof product.dataCompleteness === 'number' ? `${product.dataCompleteness}%` : product.dataCompleteness || 'N/D'}
-          </Text>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Nutrição</Text>
-          <Text style={styles.info}>Calorias: {product.nutritionalInfo.calories}</Text>
-          <Text style={styles.info}>Proteína: {product.nutritionalInfo.protein}g</Text>
-          <Text style={styles.info}>Carboidratos: {product.nutritionalInfo.carbs}g</Text>
-          <Text style={styles.info}>Gorduras: {product.nutritionalInfo.fat}g</Text>
-        </View>
-
-        <View style={[styles.impactCard, { backgroundColor: impactTheme.background, borderColor: impactTheme.border }]}>
-          <View style={styles.impactTitleRow}>
-            <Ionicons name="leaf-outline" size={18} color={impactTheme.accent} />
-            <Text style={styles.sectionTitle}>Impacto Ambiental</Text>
+          <View style={styles.scoreRow}>
+            <View style={styles.scoreCard}><Text style={styles.scoreLabel}>Saúde</Text><Text style={styles.scoreValue}>{product.healthScore}</Text></View>
+            <View style={styles.scoreCard}><Text style={styles.scoreLabel}>Sustentabilidade</Text><Text style={styles.scoreValue}>{product.sustainabilityScore}</Text></View>
           </View>
 
-          <View style={styles.levelBlock}>
-            <Text style={styles.levelCaption}>Nível estimado</Text>
-            <Text style={[styles.levelValue, { color: impactTheme.accent }]}>{impactLevel}</Text>
-            <Text style={styles.levelCaption}>Score de sustentabilidade</Text>
-            <Text style={[styles.impactScore, { color: impactTheme.accent }]}>{product.sustainabilityScore}</Text>
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Informações do produto</Text>
+            <Text style={styles.info}>Código: {product.barcode}</Text>
+            <Text style={styles.info}>Categorias: {product.categories?.join(', ') || 'Não informado'}</Text>
+            <Text style={styles.info}>Nutri-Score: {product.nutriScore || 'N/A'}</Text>
+            <Text style={styles.info}>Fonte: {formatDataSource(product.dataSource)}</Text>
+            <Text style={styles.info}>
+              Integridade dos dados: {typeof product.dataCompleteness === 'number' ? `${product.dataCompleteness}%` : product.dataCompleteness || 'N/D'}
+            </Text>
           </View>
 
-          <View style={styles.chipsRow}>
-            <View style={[styles.impactChip, { backgroundColor: impactTheme.chip }]}>
-              <Ionicons name="cloud-outline" size={14} color={impactTheme.accent} />
-              <Text style={[styles.impactChipText, { color: impactTheme.accent }]}>{formatCo2(product.environmentalImpact.carbonFootprint)}</Text>
-            </View>
-            <View style={[styles.impactChip, { backgroundColor: impactTheme.chip }]}>
-              <Ionicons name="leaf-outline" size={14} color={impactTheme.accent} />
-              <Text style={[styles.impactChipText, { color: impactTheme.accent }]}>EcoScore: {ecoScore}</Text>
-            </View>
-            <View style={[styles.impactChip, { backgroundColor: impactTheme.chip }]}>
-              <Ionicons name="water-outline" size={14} color={impactTheme.accent} />
-              <Text style={[styles.impactChipText, { color: impactTheme.accent }]}>{formatWater(product.environmentalImpact.waterUsage)}</Text>
-            </View>
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Nutrição</Text>
+            <Text style={styles.info}>Calorias: {product.nutritionalInfo.calories}</Text>
+            <Text style={styles.info}>Proteína: {product.nutritionalInfo.protein}g</Text>
+            <Text style={styles.info}>Carboidratos: {product.nutritionalInfo.carbs}g</Text>
+            <Text style={styles.info}>Gorduras: {product.nutritionalInfo.fat}g</Text>
           </View>
 
-          <Text style={styles.info}>Embalagem: {product.environmentalImpact.packagingType || 'não informado'}</Text>
-          {contextMessages.map((message) => (
-            <Text key={message} style={styles.contextMessage}>{message}</Text>
-          ))}
-        </View>
+          <View style={[styles.impactCard, { backgroundColor: impactTheme.background, borderColor: impactTheme.border }]}>
+            <View style={styles.impactTitleRow}>
+              <Ionicons name="leaf-outline" size={18} color={impactTheme.accent} />
+              <Text style={styles.sectionTitle}>Impacto Ambiental</Text>
+            </View>
 
-        <Pressable style={[styles.button, isFavorite && styles.buttonDisabled]} onPress={handleFavorite}>
-          <Text style={styles.buttonText}>{isFavorite ? 'Já está nos favoritos' : 'Adicionar aos favoritos'}</Text>
-        </Pressable>
+            <View style={styles.levelBlock}>
+              <Text style={styles.levelCaption}>Nível estimado</Text>
+              <Text style={[styles.levelValue, { color: impactTheme.accent }]}>{impactLevel}</Text>
+              <Text style={styles.levelCaption}>Score de sustentabilidade</Text>
+              <Text style={[styles.impactScore, { color: impactTheme.accent }]}>{product.sustainabilityScore}</Text>
+            </View>
+
+            <View style={styles.chipsRow}>
+              <View style={[styles.impactChip, { backgroundColor: impactTheme.chip }]}>
+                <Ionicons name="cloud-outline" size={14} color={impactTheme.accent} />
+                <Text style={[styles.impactChipText, { color: impactTheme.accent }]}>{formatCo2(product.environmentalImpact.carbonFootprint)}</Text>
+              </View>
+              <View style={[styles.impactChip, { backgroundColor: impactTheme.chip }]}>
+                <Ionicons name="leaf-outline" size={14} color={impactTheme.accent} />
+                <Text style={[styles.impactChipText, { color: impactTheme.accent }]}>EcoScore: {ecoScore}</Text>
+              </View>
+              <View style={[styles.impactChip, { backgroundColor: impactTheme.chip }]}>
+                <Ionicons name="water-outline" size={14} color={impactTheme.accent} />
+                <Text style={[styles.impactChipText, { color: impactTheme.accent }]}>{formatWater(product.environmentalImpact.waterUsage)}</Text>
+              </View>
+            </View>
+
+            <Text style={styles.info}>Embalagem: {product.environmentalImpact.packagingType || 'não informado'}</Text>
+            {contextMessages.map((message) => (
+              <Text key={message} style={styles.contextMessage}>{message}</Text>
+            ))}
+          </View>
+
+          <Pressable style={[styles.button, isFavorite && styles.buttonDisabled]} onPress={handleFavorite}>
+            <Text style={styles.buttonText}>{isFavorite ? 'Já está nos favoritos' : 'Adicionar aos favoritos'}</Text>
+          </Pressable>
+        </ScreenContainer>
       </ScrollView>
     </SafeAreaView>
   );
@@ -143,6 +146,7 @@ export default function ProductDetailsScreen() {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#F8FAFC' },
   container: { padding: 20, gap: 14 },
+  contentWidth: { gap: 14 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   image: { width: '100%', height: 220, borderRadius: 20, backgroundColor: '#ddd' },
   title: { fontSize: 26, fontWeight: '700', color: '#1E3A8A' },

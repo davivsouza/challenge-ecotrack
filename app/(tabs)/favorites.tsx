@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ScreenContainer } from '@/components/layout/screen-container';
 import { useDeleteFavorite, useFavorites, useUpdateFavorite } from '@/hooks/useProducts';
 
 export default function FavoritesScreen() {
@@ -16,7 +17,7 @@ export default function FavoritesScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <View style={styles.container}>
+      <ScreenContainer style={styles.container}>
         <Text style={styles.title}>Favoritos</Text>
         <FlatList
           data={data ?? []}
@@ -43,7 +44,7 @@ export default function FavoritesScreen() {
           )}
           ListEmptyComponent={<Text style={styles.empty}>{isLoading ? 'Carregando...' : 'Nenhum favorito salvo.'}</Text>}
         />
-      </View>
+      </ScreenContainer>
     </SafeAreaView>
   );
 }

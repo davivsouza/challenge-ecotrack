@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ScreenContainer } from '@/components/layout/screen-container';
 import { useCreateHistory, useLookupProduct } from '@/hooks/useProducts';
 import { notificationService } from '@/services/notificationService';
 
@@ -108,67 +109,69 @@ export default function ScanScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <Text style={styles.title}>EcoTrack</Text>
-          <Text style={styles.subtitle}>Escaneie um produto para ver impacto e nutrição</Text>
-        </View>
-
-        <View style={styles.scanContainer}>
-          <View style={styles.scannerFrame}>
-            {scannerOpen ? (
-              <>
-                <CameraView
-                  style={styles.camera}
-                  facing="back"
-                  autofocus="on"
-                  onBarcodeScanned={hasScanned ? undefined : handleBarcodeScanned}
-                  barcodeScannerSettings={{ barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39', 'code93', 'itf14', 'codabar'] }}
-                />
-                <View style={styles.scannerOverlay}>
-                  <View style={[styles.corner, styles.topLeft]} />
-                  <View style={[styles.corner, styles.topRight]} />
-                  <View style={[styles.corner, styles.bottomLeft]} />
-                  <View style={[styles.corner, styles.bottomRight]} />
-                  <View style={styles.scanLine} />
-                </View>
-              </>
-            ) : (
-              <View style={styles.scannerPlaceholder}>
-                <Text style={styles.placeholderTitle}>Scanner de código de barras</Text>
-                <Text style={styles.placeholderText}>Abra a câmera e alinhe o código dentro do quadro para buscar o produto.</Text>
-              </View>
-            )}
+        <ScreenContainer style={styles.contentWidth}>
+          <View style={styles.header}>
+            <Text style={styles.title}>EcoTrack</Text>
+            <Text style={styles.subtitle}>Escaneie um produto para ver impacto e nutrição</Text>
           </View>
 
-          <TouchableOpacity style={[styles.scanButton, loading && styles.scanButtonDisabled]} onPress={() => void handleOpenScanner()} disabled={loading}>
-            <Text style={styles.scanButtonText}>{loading ? 'Buscando produto...' : scannerOpen ? 'Fechar Scanner' : 'Abrir Scanner'}</Text>
-          </TouchableOpacity>
+          <View style={styles.scanContainer}>
+            <View style={styles.scannerFrame}>
+              {scannerOpen ? (
+                <>
+                  <CameraView
+                    style={styles.camera}
+                    facing="back"
+                    autofocus="on"
+                    onBarcodeScanned={hasScanned ? undefined : handleBarcodeScanned}
+                    barcodeScannerSettings={{ barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39', 'code93', 'itf14', 'codabar'] }}
+                  />
+                  <View style={styles.scannerOverlay}>
+                    <View style={[styles.corner, styles.topLeft]} />
+                    <View style={[styles.corner, styles.topRight]} />
+                    <View style={[styles.corner, styles.bottomLeft]} />
+                    <View style={[styles.corner, styles.bottomRight]} />
+                    <View style={styles.scanLine} />
+                  </View>
+                </>
+              ) : (
+                <View style={styles.scannerPlaceholder}>
+                  <Text style={styles.placeholderTitle}>Scanner de código de barras</Text>
+                  <Text style={styles.placeholderText}>Abra a câmera e alinhe o código dentro do quadro para buscar o produto.</Text>
+                </View>
+              )}
+            </View>
 
-          {permission && !permission.granted ? (
-            <Text style={styles.permissionText}>O acesso à câmera é necessário para escanear automaticamente.</Text>
-          ) : null}
-        </View>
+            <TouchableOpacity style={[styles.scanButton, loading && styles.scanButtonDisabled]} onPress={() => void handleOpenScanner()} disabled={loading}>
+              <Text style={styles.scanButtonText}>{loading ? 'Buscando produto...' : scannerOpen ? 'Fechar Scanner' : 'Abrir Scanner'}</Text>
+            </TouchableOpacity>
 
-        <View style={styles.divider}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>ou</Text>
-          <View style={styles.dividerLine} />
-        </View>
+            {permission && !permission.granted ? (
+              <Text style={styles.permissionText}>O acesso à câmera é necessário para escanear automaticamente.</Text>
+            ) : null}
+          </View>
 
-        <View style={styles.manualContainer}>
-          <Text style={styles.manualTitle}>Digite o código de barras</Text>
-          <TextInput
-            style={styles.barcodeInput}
-            placeholder="Ex: 7891000100103"
-            value={barcode}
-            onChangeText={setBarcode}
-            keyboardType="number-pad"
-            maxLength={14}
-          />
-          <TouchableOpacity style={[styles.manualButton, loading && styles.manualButtonDisabled]} onPress={() => void handleManualBarcode()} disabled={loading}>
-            <Text style={styles.manualButtonText}>{loading ? 'Buscando...' : 'Buscar Produto'}</Text>
-          </TouchableOpacity>
-        </View>
+          <View style={styles.divider}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>ou</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          <View style={styles.manualContainer}>
+            <Text style={styles.manualTitle}>Digite o código de barras</Text>
+            <TextInput
+              style={styles.barcodeInput}
+              placeholder="Ex: 7891000100103"
+              value={barcode}
+              onChangeText={setBarcode}
+              keyboardType="number-pad"
+              maxLength={14}
+            />
+            <TouchableOpacity style={[styles.manualButton, loading && styles.manualButtonDisabled]} onPress={() => void handleManualBarcode()} disabled={loading}>
+              <Text style={styles.manualButtonText}>{loading ? 'Buscando...' : 'Buscar Produto'}</Text>
+            </TouchableOpacity>
+          </View>
+        </ScreenContainer>
       </ScrollView>
     </SafeAreaView>
   );
@@ -184,8 +187,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8FAFC',
   },
   contentContainer: {
-    paddingHorizontal: 20,
     paddingBottom: 24,
+  },
+  contentWidth: {
+    paddingHorizontal: 20,
   },
   header: {
     alignItems: 'center',
