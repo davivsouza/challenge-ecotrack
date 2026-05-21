@@ -14,15 +14,19 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   if (!isLoading && user) return <Redirect href="/(tabs)" />;
 
   const handleSubmit = async () => {
     if (!email || !password || (mode === 'register' && !name)) {
-      Alert.alert('Campos obrigatórios', 'Preencha todos os campos antes de continuar.');
+      const message = 'Preencha todos os campos antes de continuar.';
+      setErrorMessage(message);
+      Alert.alert('Campos obrigatórios', message);
       return;
     }
 
+    setErrorMessage('');
     setSubmitting(true);
     try {
       if (mode === 'login') {
@@ -31,7 +35,9 @@ export default function LoginScreen() {
         await signUp({ name, email, password });
       }
     } catch (error) {
-      Alert.alert('Erro', error instanceof Error ? error.message : 'Não foi possível concluir a autenticação.');
+      const message = error instanceof Error ? error.message : 'Não foi possível concluir a autenticação.';
+      setErrorMessage(message);
+      Alert.alert('Erro', message);
     } finally {
       setSubmitting(false);
     }
@@ -49,6 +55,7 @@ export default function LoginScreen() {
           <View style={styles.card}>
             <Text style={styles.title}>{mode === 'login' ? 'Acesse sua conta' : 'Crie sua conta'}</Text>
             <Text style={styles.subtitle}>Acompanhe o impacto dos produtos que você consome.</Text>
+            {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
             {mode === 'register' ? (
               <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Nome" placeholderTextColor={BrandColors.textSecondary} />
@@ -103,6 +110,7 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 29, fontWeight: '700', color: BrandColors.darkBlue },
   subtitle: { fontSize: 15, lineHeight: 22, color: BrandColors.textSecondary, marginBottom: 2 },
+  errorText: { color: '#B42318', backgroundColor: '#FEF3F2', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontWeight: '600' },
   input: {
     borderWidth: 1,
     borderColor: BrandColors.border,
