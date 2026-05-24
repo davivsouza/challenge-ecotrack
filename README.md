@@ -77,7 +77,7 @@ lib/                utilitários globais (ex.: QueryClient)
 ### 1) Instalar dependências do app
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 2) Subir backend Java
@@ -103,16 +103,27 @@ EXPO_PUBLIC_APP_COMMIT=dev-build
 ### 4) Executar o app
 
 ```bash
-npm start
+pnpm start
 ```
 
 Atalhos úteis:
 
 ```bash
-npm run android
-npm run ios
-npm run web
+pnpm android
+pnpm ios
+pnpm web
 ```
+
+## Publicacao Sprint 4
+
+O app possui configuracao de build Android para Firebase App Distribution em `eas.json`.
+
+```bash
+pnpm build:android:firebase
+pnpm firebase:distribute:android
+```
+
+Veja o passo a passo e as variaveis obrigatorias em `docs/publicacao-firebase.md`.
 
 
 ## Endpoints principais do backend
@@ -131,4 +142,3 @@ npm run web
 - `POST /favorites`
 - `PATCH /favorites/:id`
 - `DELETE /favorites/:id`
-

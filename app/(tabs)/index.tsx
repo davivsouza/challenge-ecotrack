@@ -43,7 +43,7 @@ export default function ScanScreen() {
     try {
       const product = await lookupProduct.mutateAsync(value);
       await createHistory.mutateAsync({ productId: product.id });
-      await notificationService.notifyProductScanned(product.name);
+      await notificationService.notifyProductScanned(product.name, product.id);
 
       if (!mountedRef.current) return;
       setBarcode(product.barcode || value);

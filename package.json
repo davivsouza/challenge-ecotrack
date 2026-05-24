@@ -9,6 +9,9 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
+    "build:android:firebase": "eas build --platform android --profile firebase",
+    "build:android:firebase:local": "eas build --platform android --profile firebase --local --output dist/challenge-ecotrack.apk",
+    "firebase:distribute:android": "firebase appdistribution:distribute dist/challenge-ecotrack.apk --app \"$FIREBASE_ANDROID_APP_ID\" --testers \"$FIREBASE_TESTERS\" --release-notes-file firebase-release-notes.txt",
     "backend:install": "npm install --prefix backend",
     "backend:dev": "npm run dev --prefix backend",
     "backend:build": "npm run build --prefix backend"

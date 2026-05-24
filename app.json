@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "challenge-ecotrack",
+    "name": "EcoTrack",
     "slug": "challenge-ecotrack",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -13,9 +13,19 @@
     },
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ecotrack.challenge",
+      "buildNumber": "1"
     },
     "android": {
+      "package": "com.ecotrack.challenge",
+      "versionCode": 1,
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "CAMERA",
+        "POST_NOTIFICATIONS",
+        "android.permission.CAMERA"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -31,10 +41,13 @@
     },
     "plugins": [
       "expo-router",
+      "expo-notifications",
       [
         "expo-camera",
         {
-          "cameraPermission": "Permita o acesso à câmera para escanear códigos de barras de produtos no EcoTrack."
+          "cameraPermission": "Permita o acesso à câmera para escanear códigos de barras de produtos no EcoTrack.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
         }
       ],
       [
@@ -53,6 +66,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "1da7d041-7465-453c-8f3a-c645f27cb818"
+      }
     }
   }
 }

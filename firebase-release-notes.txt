@@ -1,0 +1,5 @@
+EcoTrack Sprint 4
+
+- App mobile final com login, cadastro, scanner, catalogo, historico, favoritos e detalhes do produto.
+- Notificacao local apos produto analisado, com abertura da tela de detalhes ao tocar.
+- Tela Sobre o app exibe versao e commit de referencia da build.
